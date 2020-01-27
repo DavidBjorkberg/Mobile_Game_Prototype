@@ -200,7 +200,6 @@ GameObject:
   - component: {fileID: 8367812936413429751}
   - component: {fileID: -6623857327303781747}
   - component: {fileID: -7317087741668240289}
-  - component: {fileID: 5604121189102787703}
   m_Layer: 9
   m_Name: Enemy
   m_TagString: Untagged
@@ -298,8 +297,6 @@ MonoBehaviour:
   fieldOfView: {fileID: 742798763513189404}
   movementSpeed: 2
   drawPath: {fileID: 4665707122982861360}
-  waypoints: []
-  nrOfSteps: 5
 --- !u!195 &-6623857327303781747
 NavMeshAgent:
   m_ObjectHideFlags: 0
@@ -311,12 +308,12 @@ NavMeshAgent:
   m_AgentTypeID: 0
   m_Radius: 0.5
   m_Speed: 4
-  m_Acceleration: 200
+  m_Acceleration: 30
   avoidancePriority: 50
   m_AngularSpeed: 80
   m_StoppingDistance: 0
   m_AutoTraverseOffMeshLink: 0
-  m_AutoBraking: 0
+  m_AutoBraking: 1
   m_AutoRepath: 0
   m_Height: 1
   m_BaseOffset: 0.5
@@ -418,15 +415,3 @@ LineRenderer:
     generateLightingData: 0
   m_UseWorldSpace: 1
   m_Loop: 0
---- !u!114 &5604121189102787703
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4838513967673661279}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 486e91db6a867d346a9705ab8778c180, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 

@@ -5,38 +5,38 @@ using UnityEngine.AI;
 using UnityEngine.SceneManagement;
 public class Player : MonoBehaviour
 {
+    public GameObject step;
+    public DrawPath drawPath;
     public int movementSpeed;
     public int acceleration;
     public int walkRange;
     Vector3 destination;
-    internal NavMeshAgent agent;
+    NavMeshAgent agent;
     Vector3 confirmPathClickPos;
     float confirmPathRadius = 1;
-    LineRenderer lr;
     void Start()
     {
-        lr = GetComponent<LineRenderer>();
     }
 
     void Update()
     {
         if (agent != null)
         {
-            agent.isStopped = Game.game.gameState != Game.GameStates.Play;
+            agent.isStopped = Game.game.gameState != Game.gameStates.Play;
         }
         switch (Game.game.gameState)
         {
-            case Game.GameStates.ChooseSpawn:
+            case Game.gameStates.ChooseSpawn:
                 Spawn();
                 break;
-            case Game.GameStates.ChoosePath:
+            case Game.gameStates.ChoosePath:
                 ChoosePath();
                 break;
-            case Game.GameStates.ConfirmPath:
+            case Game.gameStates.ConfirmPath:
                 ConfirmPath();
                 ChoosePath();
                 break;
-            case Game.GameStates.Play:
+            case Game.gameStates.Play:
                 Move();
                 break;
             default:
@@ -54,7 +54,7 @@ public class Player : MonoBehaviour
             agent = gameObject.AddComponent<NavMeshAgent>();
             agent.acceleration = acceleration;
             agent.speed = movementSpeed;
-            Game.game.gameState = Game.GameStates.ChoosePath;
+            Game.game.gameState = Game.gameStates.ChoosePath;
         }
 
 
@@ -76,13 +76,20 @@ public class Player : MonoBehaviour
 
             if (tempPath.corners.Length >= 2)
             {
-                agent.path = Game.game.RoundPath(Game.game.GetPathLength(tempPath),movementSpeed,tempPath,agent);
-                DrawPath();
+                float pathLength = Game.game.GetPathLength(tempPath);
+                tempPath = Game.game.RoundDownPath(pathLength, tempPath, agent);
+
+                agent.path = tempPath;
+                drawPath.navPath = tempPath;
+                    
+                pathLength = Game.game.GetPathLength(tempPath);
+                drawPath.DrawCurrentPath(Game.game.GetPathLength(agent.path));
+
 
                 confirmPathClickPos = Game.game.GetMousePosInWorld();
-                if (Game.game.gameState == Game.GameStates.ChoosePath)
+                if (Game.game.gameState == Game.gameStates.ChoosePath)
                 {
-                    Game.game.gameState = Game.GameStates.ConfirmPath;
+                    Game.game.gameState = Game.gameStates.ConfirmPath;
                 }
             }
         }
@@ -108,11 +115,6 @@ public class Player : MonoBehaviour
     {
         SceneManager.LoadScene(0);
     }
-    void DrawPath()
-    {
-        lr.positionCount = agent.path.corners.Length;
-        lr.SetPositions(agent.path.corners);
-    }
 
 
     void DrawWalkRange()
@@ -134,4 +136,6 @@ public class Player : MonoBehaviour
             angle += (360f / segments);
         }
     }
+
+
 }

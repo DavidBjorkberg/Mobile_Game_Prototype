@@ -7,70 +7,73 @@ using System.Collections.Generic;
 public class Game : MonoBehaviour
 {
     public static Game game;
-    public GameObject player;
+    public GameObject playerPrefab;
+    public GameObject enemyPrefab;
+    [Range(0, 15)]
     public int totalAmountOfEnemies;
-    internal int nrOfAliveEnemies;
-    public List<Enemy> enemies;
-    public int enemyWalkRange;
     public int enemyFOV;
+    public float stepSize;
     public Text gameStateText;
-    internal bool isPlayerMoving = false;
-    internal enum gameStates { ChooseSpawn, ChoosePath, ConfirmPath, Play }
-    internal gameStates gameState;
-    float roundTimer = 0;
-    float roundTime = 1;
+    internal int nrOfAliveEnemies;
+    internal EnemyHandler enemyHandler;
+    internal enum GameStates { ChooseSpawn, ChoosePath, ConfirmPath, Play }
+    internal GameStates gameState;
+    GameObject player;
     private void Awake()
     {
-        GameObject playerGO = Instantiate(player, new Vector3(-100, 0, -100), Quaternion.identity);
-        playerGO.name = "Player";
+        player = Instantiate(playerPrefab, new Vector3(-100, 0, -100), Quaternion.identity);
+        player.name = "Player";
+
         if (game == null)
         {
             game = this;
         }
+        enemyHandler = GameObject.Find("EnemyHandler").GetComponent<EnemyHandler>();
+        foreach (Enemy enemy in enemyHandler.enemies)
+        {
+            enemy.GetComponent<LineRenderer>().material.mainTextureScale = new Vector2(1 / (stepSize * enemy.movementSpeed), 0);
+        }
+        player.GetComponent<LineRenderer>().material.mainTextureScale = new Vector2(1 / (stepSize * player.GetComponent<Player>().movementSpeed), 0);
         nrOfAliveEnemies = totalAmountOfEnemies;
     }
     void Start()
     {
-        enemies = new List<Enemy>();
     }
 
     void Update()
     {
-        gameStateText.text = "GameState: " + gameState.ToString();
-        if (gameState == gameStates.Play)
+        if (gameState == GameStates.Play)
         {
-            roundTimer += Time.deltaTime;
-            if (roundTimer >= roundTime)
+            bool noEnemyHasPath = true;
+            foreach (Enemy enemy in enemyHandler.enemies)
             {
-            }
-            int counter = 0;
-            foreach (Enemy enemy in enemies)
-            {
-                if (enemy.agent.hasPath)
+                if (!enemy.agent.isStopped)
                 {
-                    counter++;
+                    noEnemyHasPath = false;
                 }
             }
-            if (counter == 0)
+            //No enemy or player has a path
+            if (noEnemyHasPath && !player.GetComponent<Player>().agent.hasPath)
             {
                 EndRound();
             }
         }
-        if (enemies.Count <= 0)
-        {
-            SceneManager.LoadScene(0);
-        }
+        gameStateText.text = "";
     }
     public void StartRound()
     {
-        gameState = gameStates.Play;
-        roundTimer = 0;
+        gameState = GameStates.Play;
+
     }
     void EndRound()
     {
-        gameState = gameStates.ChoosePath;
+        gameState = GameStates.ChoosePath;
+        foreach (Enemy enemy in enemyHandler.enemies)
+        {
+            enemy.InitializeRound();
+        }
     }
-    public Vector3 getMousePosInWorld()
+    public Vector3 GetMousePosInWorld()
     {
         Vector3 mousePos = Input.mousePosition;
         mousePos.z = Camera.main.transform.position.y;
@@ -78,14 +81,7 @@ public class Game : MonoBehaviour
         worldPos.y = 0;
         return worldPos;
     }
-    public void KillEnemy(Enemy enemy)
-    {
-        enemies.Remove(enemy);
-        Destroy(enemy.fieldOfView.gameObject);
-        Destroy(enemy.drawPath.gameObject);
-        Destroy(enemy.gameObject);
 
-    }
     public float GetPathLength(NavMeshPath path)
     {
         float lengthOfPath = 0;
@@ -95,18 +91,24 @@ public class Game : MonoBehaviour
         }
         return lengthOfPath;
     }
-    //Cuts off end of path so its length is divisible by .5f and returns the new length
-    public NavMeshPath RoundDownPath(float lengthOfPath, NavMeshPath path, NavMeshAgent agent)
+    public NavMeshPath RoundPath(float lengthOfPath, int movementSpeed, NavMeshPath path, NavMeshAgent agent)
     {
-        float roundedLength = Mathf.Floor(lengthOfPath);
-        if (lengthOfPath - roundedLength > 0.5f)
+        float roundedLength;
+        if (lengthOfPath < movementSpeed * stepSize)
         {
-            roundedLength += 0.5f;
+            roundedLength = movementSpeed * stepSize;
         }
-        float cutoffLength = lengthOfPath - roundedLength;
+        else
+        {
+            int nrOfStepsRoundDown = Mathf.FloorToInt(lengthOfPath / (movementSpeed * stepSize));
+            roundedLength = (movementSpeed * stepSize) * nrOfStepsRoundDown;
+        }
+        
+        float lengthChange = lengthOfPath - roundedLength;
+
         Vector3 cutoffDir = path.corners[path.corners.Length - 2] - path.corners[path.corners.Length - 1];
         Vector3 endPos = path.corners[path.corners.Length - 1];
-        endPos += cutoffDir.normalized * cutoffLength;
+        endPos += cutoffDir.normalized * lengthChange;
         NavMeshPath shortenedPath = new NavMeshPath();
         agent.CalculatePath(endPos, shortenedPath);
         return shortenedPath;

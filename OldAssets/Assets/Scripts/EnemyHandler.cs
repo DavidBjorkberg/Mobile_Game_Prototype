@@ -7,6 +7,9 @@ public class EnemyHandler : MonoBehaviour
     public GameObject enemyPrefab;
     public List<Enemy> enemies = new List<Enemy>();
 
+
+
+
     public Enemy GetEnemy(int index)
     {
         return enemies[index];
@@ -18,29 +21,19 @@ public class EnemyHandler : MonoBehaviour
         enemies.Add(enemyGO.GetComponent<Enemy>());
         return enemyGO;
     }
-    public void DestroyAllEnemies()
+    public void ClearEnemies()
     {
-        for (int i = 0; i < enemies.Count; i++)
+        foreach (Enemy enemy in enemies)
         {
-            DestroyEnemyImmediate(enemies[i]);
+            DestroyEnemyImmediate(enemy);
         }
-
         enemies.Clear();
-    }
-    public void DestroyLastEnemy()
-    {
-        if (enemies.Count > 0)
-        {
-            DestroyEnemyImmediate(enemies[enemies.Count - 1]);
-            enemies.RemoveAt(enemies.Count - 1);
-        }
     }
     void DestroyEnemyImmediate(Enemy enemy)
     {
         DestroyImmediate(enemy.fieldOfView.gameObject);
         DestroyImmediate(enemy.drawPath.gameObject);
         DestroyImmediate(enemy.gameObject);
-        enemy.RemoveAllWaypoints(true);
     }
     public void KillEnemy(Enemy enemy)
     {

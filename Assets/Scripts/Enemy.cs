@@ -1,56 +1,50 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using System.Collections.Generic;
+using UnityEditor;
 using UnityEngine.AI;
+using UnityEngine;
+[RequireComponent(typeof(NavMeshAgent))]
 public class Enemy : MonoBehaviour
 {
-    internal Vector3 patrolStart;
-    internal Vector3 patrolGoal;
-    GameObject player;
-    internal int enemyNR;
     public FieldofView fieldOfView;
     public int movementSpeed;
-    bool stopAndWaitRunning = false;
     public DrawPath drawPath;
+    public List<GameObject> waypoints;
+    public int nrOfSteps;
     internal NavMeshAgent agent;
     int wayPointIndex = 0;
+    GameObject player;
+    Vector3 previousPos;
+    float distanceWalked = 0;
     void Start()
     {
+        if (waypoints == null)
+        {
+            waypoints = new List<GameObject>();
+        }
         fieldOfView.enemy = gameObject;
         player = GameObject.Find("Player");
         agent = GetComponent<NavMeshAgent>();
         agent.speed = movementSpeed;
+        InitializeRound();
     }
     void Update()
     {
-        agent.isStopped = Game.game.gameState != Game.gameStates.Play;
 
         switch (Game.game.gameState)
         {
-            case Game.gameStates.ChooseSpawn:
+            case Game.GameStates.ChooseSpawn:
                 break;
-            case Game.gameStates.ChoosePath:
-                stopAndWaitRunning = false;
-                if(!stopAndWaitRunning)
-                {
-                    SwitchDirection();
-                    stopAndWaitRunning = true;
-                }
-                drawPath.navPath = agent.path;
-                drawPath.DrawCurrentPath(Game.game.GetPathLength(agent.path));
+            case Game.GameStates.ChoosePath:
                 break;
-            case Game.gameStates.ConfirmPath:
+            case Game.GameStates.ConfirmPath:
                 break;
-            case Game.gameStates.Play:
-
+            case Game.GameStates.Play:
                 Move();
                 CheckFoV();
                 break;
             default:
                 break;
         }
-
-
 
         Ray backRay = new Ray(transform.position, -transform.forward);
         if (Physics.OverlapSphere(transform.position - transform.forward, 1.5f, 1 << 8).Length > 0)
@@ -59,23 +53,36 @@ public class Enemy : MonoBehaviour
         }
     }
 
+    readonly float switchWaypointDistance = 0.6f;
     void Move()
     {
-        if (!agent.hasPath)
+        if (!agent.hasPath || (transform.position - agent.destination).magnitude <= switchWaypointDistance)
         {
-            if (!stopAndWaitRunning)
-            {
-                SwitchDirection();
-                stopAndWaitRunning = true;
-                //StartCoroutine(StopAndWait());
-            }
+            agent.destination = waypoints[wayPointIndex].transform.position;
+            wayPointIndex = ++wayPointIndex % waypoints.Count;
         }
 
+        UpdateDistanceWalked();
+        agent.isStopped = distanceWalked / Game.game.stepSize >= nrOfSteps * 2;
+
+    }
+    void UpdateDistanceWalked()
+    {
+        if (previousPos == Vector3.zero)
+        {
+            previousPos = transform.position;
+        }
+        else
+        {
+            float distanceSinceLastFrame = (previousPos - transform.position).magnitude;
+            distanceWalked += distanceSinceLastFrame;
+            previousPos = transform.position;
+        }
     }
     void Died()
     {
-        Game.game.KillEnemy(this);
-    
+        Game.game.enemyHandler.KillEnemy(this);
+
     }
     void CheckFoV()
     {
@@ -97,52 +104,92 @@ public class Enemy : MonoBehaviour
         player.GetComponent<Player>().Died();
 
     }
-    IEnumerator StopAndWait()
+    //Called when Gamestate switches to "Choose path"
+    public void InitializeRound()
     {
-        stopAndWaitRunning = true;
-        yield return new WaitForSeconds(1f);
-        SwitchDirection();
-        stopAndWaitRunning = false;
-    }
-    void SwitchDirection()
-    {
-        NavMeshPath tempPath = new NavMeshPath();
-        if (wayPointIndex == 0)
-        {
-            agent.CalculatePath(patrolGoal, tempPath);
-            wayPointIndex++;
-        }
-        else if (wayPointIndex == 1)
-        {
-            agent.CalculatePath(patrolStart, tempPath);
-            wayPointIndex = 0;
-        }
-        float pathLength = Game.game.GetPathLength(tempPath);
-        tempPath = Game.game.RoundDownPath(pathLength, tempPath, agent);
 
-        agent.path = tempPath;
-        drawPath.navPath = agent.path;
-    }
-    private void OnDrawGizmosSelected()
-    {
-        switch (enemyNR)
+        GetComponent<LineRenderer>().positionCount = waypoints.Count;
+        GetComponent<LineRenderer>().SetPosition(0, transform.position);
+        float distanceToWalk = nrOfSteps * 2;
+        for (int i = 1; i <= waypoints.Count; i++)
         {
-            case 0:
-                Gizmos.color = Color.yellow;
-                break;
-            case 1:
-                Gizmos.color = Color.cyan;
-                break;
-            case 2:
-                Gizmos.color = Color.green;
-                break;
-            case 3:
-                Gizmos.color = Color.black;
-                break;
-            default:
-                break;
+            if (distanceToWalk <= 0)
+            {
+                GetComponent<LineRenderer>().positionCount = i;
+                return;
+            }
+
+            float distanceToNextWaypoint = Vector3.Distance(transform.position, waypoints[wayPointIndex + i].transform.position);
+            if (distanceToNextWaypoint <= distanceToWalk)
+            {
+                GetComponent<LineRenderer>().SetPosition(i, waypoints[wayPointIndex + i].transform.position);
+                distanceToWalk -= distanceToNextWaypoint;
+            }
+            else
+            {
+                Vector3 endPos = waypoints[wayPointIndex + i].transform.position;
+
+                Vector3 cutoffDir = waypoints[wayPointIndex + i].transform.position - waypoints[wayPointIndex + i - 1].transform.position;
+                cutoffDir.Normalize();
+                float cutoffLength = distanceToNextWaypoint - nrOfSteps * 2;
+                endPos += cutoffDir * cutoffLength;
+
+                GetComponent<LineRenderer>().SetPosition(i, endPos);
+                distanceToWalk = 0;
+            }
+
         }
-        Gizmos.DrawSphere(patrolStart + new Vector3(0, 1, 0), 1f);
-        Gizmos.DrawSphere(patrolGoal + new Vector3(0, 1, 0), 1f);
+        distanceWalked = 0;
+    }
+
+
+
+
+
+
+
+
+
+
+
+    //Editor functions
+    public GameObject AddWaypoint()
+    {
+        GameObject newWaypoint = new GameObject("Waypoint");
+        newWaypoint.transform.position = transform.position;
+        newWaypoint.transform.SetParent(GameObject.Find("Waypoints").transform);
+
+        TargetEnemy targetEnemy = newWaypoint.AddComponent<TargetEnemy>();
+        targetEnemy.owner = gameObject;
+        if (waypoints.Count > 0)
+        {
+            targetEnemy.previous = waypoints[waypoints.Count - 1];
+            EditorUtility.SetDirty(targetEnemy.previous);
+        }
+        EditorUtility.SetDirty(targetEnemy);
+        EditorUtility.SetDirty(targetEnemy.owner);
+        waypoints.Add(newWaypoint);
+        return newWaypoint;
+    }
+    public void RemoveLatestWaypoint()
+    {
+        if (waypoints.Count > 0)
+        {
+            DestroyImmediate(waypoints[waypoints.Count - 1]);
+            waypoints.RemoveAt(waypoints.Count - 1);
+        }
+    }
+    public void RemoveAllWaypoints(bool removeLast)
+    {
+        for (int i = waypoints.Count - 1; i > 0; i--)
+        {
+            DestroyImmediate(waypoints[i]);
+            waypoints.RemoveAt(i);
+        }
+        if (removeLast)
+        {
+            DestroyImmediate(waypoints[0]);
+            waypoints.RemoveAt(0);
+        }
     }
 }
