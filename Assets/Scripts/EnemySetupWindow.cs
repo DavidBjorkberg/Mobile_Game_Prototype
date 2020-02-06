@@ -12,11 +12,12 @@ public class EnemySetupWindow : EditorWindow
     void OnGUI()
     {
         GUILayout.ExpandWidth(true);
-        if (GUILayout.Button("Create Enemy", GUILayout.Height(60)))
+        if (GUILayout.Button("Create Enemy", GUILayout.Height(position.height / 5.3f)))
         {
             //Create new enemy
             EnemyHandler enemyHandler = GameObject.Find("EnemyHandler").GetComponent<EnemyHandler>();
             GameObject createdEnemy = enemyHandler.CreateEnemy();
+            createdEnemy.transform.SetParent(GameObject.Find("Enemies").transform);
             EditorUtility.SetDirty(createdEnemy);
 
             createdEnemy.GetComponent<Enemy>().waypoints = new List<GameObject>();
@@ -30,12 +31,12 @@ public class EnemySetupWindow : EditorWindow
         GUILayout.ExpandWidth(false);
         GUILayout.BeginHorizontal();
 
-        if (GUILayout.Button("Delete latest Enemy", GUILayout.Width((position.width - position.width / 4)), GUILayout.Height(60)))
+        if (GUILayout.Button("Delete latest Enemy", GUILayout.Width((position.width - position.width / 4)), GUILayout.Height(position.height / 5.3f)))
         {
             EnemyHandler enemyHandler = GameObject.Find("EnemyHandler").GetComponent<EnemyHandler>();
             enemyHandler.DestroyLastEnemy();
         }
-        if (GUILayout.Button("Delete all enemies", GUILayout.Width(position.width / 4), GUILayout.Height(60)))
+        if (GUILayout.Button("Delete all enemies", GUILayout.Width(position.width / 4), GUILayout.Height(position.height / 5.3f)))
         {
             EnemyHandler enemyHandler = GameObject.Find("EnemyHandler").GetComponent<EnemyHandler>();
             enemyHandler.DestroyAllEnemies();
@@ -43,7 +44,7 @@ public class EnemySetupWindow : EditorWindow
         GUILayout.EndHorizontal();
         GUILayout.ExpandWidth(true);
 
-        if (GUILayout.Button("Add waypoint", GUILayout.Height(60)))
+        if (GUILayout.Button("Add waypoint", GUILayout.Height(position.height / 5.3f)))
         {
             if (Selection.activeGameObject != null)
             {
@@ -62,7 +63,7 @@ public class EnemySetupWindow : EditorWindow
 
             }
         }
-        if (GUILayout.Button("Remove latest waypoint", GUILayout.Height(60)))
+        if (GUILayout.Button("Remove latest waypoint", GUILayout.Height(position.height / 5.3f)))
         {
             if (Selection.activeGameObject != null)
             {
@@ -86,7 +87,7 @@ public class EnemySetupWindow : EditorWindow
                 }
             }
         }
-        if (GUILayout.Button("Remove all waypoints", GUILayout.Height(60)))
+        if (GUILayout.Button("Remove all waypoints", GUILayout.Height(position.height / 5.3f)))
         {
             if (Selection.activeGameObject != null)
             {

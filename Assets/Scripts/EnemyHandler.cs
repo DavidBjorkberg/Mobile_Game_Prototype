@@ -38,7 +38,6 @@ public class EnemyHandler : MonoBehaviour
     void DestroyEnemyImmediate(Enemy enemy)
     {
         DestroyImmediate(enemy.fieldOfView.gameObject);
-        DestroyImmediate(enemy.drawPath.gameObject);
         DestroyImmediate(enemy.gameObject);
         enemy.RemoveAllWaypoints(true);
     }
@@ -46,7 +45,6 @@ public class EnemyHandler : MonoBehaviour
     {
         enemies.Remove(enemy);
         Destroy(enemy.fieldOfView.gameObject);
-        Destroy(enemy.drawPath.gameObject);
         Destroy(enemy.gameObject);
     }
 }

@@ -7,16 +7,26 @@ public class Enemy : MonoBehaviour
 {
     public FieldofView fieldOfView;
     public int movementSpeed;
-    public DrawPath drawPath;
     public List<GameObject> waypoints;
     public int nrOfSteps;
+    public float killDistance;
+    public float chaseTime;
     internal NavMeshAgent agent;
-    int wayPointIndex = 0;
-    GameObject player;
-    Vector3 previousPos;
-    float distanceWalked = 0;
+    private int wayPointIndex = 0;
+    private GameObject player;
+    private Vector3 endPos;
+    private float lastSeenPlayerTimer;
+    private Vector3 lastSeenPlayerPos;
+    private float chaseSpeed;
+    private List<Vector3> pathCorners = new List<Vector3>();
+    private enum MovementStates
+    {
+        Standard, Chasing, Returning
+    }
+    private MovementStates state;
     void Start()
     {
+        chaseSpeed = movementSpeed * 2f;
         if (waypoints == null)
         {
             waypoints = new List<GameObject>();
@@ -24,12 +34,12 @@ public class Enemy : MonoBehaviour
         fieldOfView.enemy = gameObject;
         player = GameObject.Find("Player");
         agent = GetComponent<NavMeshAgent>();
-        agent.speed = movementSpeed;
+        agent.speed = movementSpeed * Game.game.movementSpeedFactor;
         InitializeRound();
+        state = MovementStates.Standard;
     }
     void Update()
     {
-
         switch (Game.game.gameState)
         {
             case Game.GameStates.ChooseSpawn:
@@ -46,43 +56,53 @@ public class Enemy : MonoBehaviour
                 break;
         }
 
-        Ray backRay = new Ray(transform.position, -transform.forward);
-        if (Physics.OverlapSphere(transform.position - transform.forward, 1.5f, 1 << 8).Length > 0)
+        if (Physics.OverlapSphere(transform.position - transform.forward, 1f, 1 << 8).Length > 0)
         {
             Died();
         }
     }
 
-    readonly float switchWaypointDistance = 0.6f;
+    readonly float switchWaypointDistance = 0.7f;
     void Move()
     {
-        if (!agent.hasPath || (transform.position - agent.destination).magnitude <= switchWaypointDistance)
+        switch (state)
         {
-            agent.destination = waypoints[wayPointIndex].transform.position;
-            wayPointIndex = ++wayPointIndex % waypoints.Count;
-        }
+            case MovementStates.Standard:
+                if (!agent.hasPath || (transform.position - agent.destination).magnitude <= switchWaypointDistance)
+                {
+                    wayPointIndex = ++wayPointIndex % waypoints.Count;
+                    agent.destination = waypoints[wayPointIndex].transform.position;
+                }
 
-        UpdateDistanceWalked();
-        agent.isStopped = distanceWalked / Game.game.stepSize >= nrOfSteps * 2;
+                agent.isStopped = Vector3.Distance(transform.position, endPos) <= 0.5f;
+                break;
+            case MovementStates.Chasing:
+                agent.speed = chaseSpeed * Game.game.movementSpeedFactor;
+                agent.destination = lastSeenPlayerPos;
+                lastSeenPlayerTimer += Time.deltaTime;
+                if (lastSeenPlayerTimer >= chaseTime || !agent.hasPath)
+                {
+                    state = MovementStates.Returning;
+                    agent.destination = GetClosestPointInPath();
+                }
 
-    }
-    void UpdateDistanceWalked()
-    {
-        if (previousPos == Vector3.zero)
-        {
-            previousPos = transform.position;
+                break;
+            case MovementStates.Returning:
+                agent.speed = movementSpeed * Game.game.movementSpeedFactor;
+                if ((transform.position - agent.destination).magnitude <= switchWaypointDistance)
+                {
+                    state = MovementStates.Standard;
+                    agent.destination = waypoints[wayPointIndex].transform.position;
+                }
+                break;
+            default:
+                break;
         }
-        else
-        {
-            float distanceSinceLastFrame = (previousPos - transform.position).magnitude;
-            distanceWalked += distanceSinceLastFrame;
-            previousPos = transform.position;
-        }
     }
+
     void Died()
     {
         Game.game.enemyHandler.KillEnemy(this);
-
     }
     void CheckFoV()
     {
@@ -94,52 +114,141 @@ public class Enemy : MonoBehaviour
             {
                 if (hit.transform.TryGetComponent(out Player player))
                 {
-                    DetectedPlayer();
+                    DetectedPlayer(enemyToPlayer.magnitude);
                 }
             }
         }
     }
-    void DetectedPlayer()
+    void DetectedPlayer(float distanceToPlayer)
     {
-        player.GetComponent<Player>().Died();
+        if (distanceToPlayer > killDistance)
+        {
+            if (state != MovementStates.Chasing)
+            {
+                state = MovementStates.Chasing;
+            }
 
+            lastSeenPlayerTimer = 0;
+            lastSeenPlayerPos = player.transform.position;
+        }
+        else
+        {
+            state = MovementStates.Standard;
+            player.GetComponent<Player>().Died();
+        }
+
+    }
+    Vector3 GetClosestPointInPath()
+    {
+        Vector3 closestPoint = Vector3.zero;
+        float closestDistance = Mathf.Infinity;
+        for (int i = 0; i < pathCorners.Count - 1; i++)
+        {
+            Vector3 direction = pathCorners[i + 1] - pathCorners[i];
+            float length = direction.magnitude;
+            direction.Normalize();
+            Vector3 v = transform.position - pathCorners[i];
+            float d = Mathf.Clamp(Vector3.Dot(v, direction), 0, length);
+            Vector3 point = pathCorners[i] + direction * d;
+            if (d < closestDistance)
+            {
+                closestDistance = d;
+                closestPoint = point;
+            }
+        }
+        return closestPoint;
     }
     //Called when Gamestate switches to "Choose path"
     public void InitializeRound()
     {
-
+        pathCorners.Clear();
+        pathCorners.Add(transform.position);
         GetComponent<LineRenderer>().positionCount = waypoints.Count;
         GetComponent<LineRenderer>().SetPosition(0, transform.position);
-        float distanceToWalk = nrOfSteps * 2;
-        for (int i = 1; i <= waypoints.Count; i++)
+        float distanceToWalk = (nrOfSteps * 2) * Game.game.stepSize;
+        int tempIndex = wayPointIndex;
+        //First waypoint is on player, skip to next
+        if (wayPointIndex == 0)
+            tempIndex = 1;
+        int i = 1;
+        while (distanceToWalk > 0)
         {
-            if (distanceToWalk <= 0)
+            GetComponent<LineRenderer>().positionCount = i + 1;
+            Vector3 nextWaypoint = waypoints[(tempIndex + i - 1) % waypoints.Count].transform.position;
+            Vector3 curWaypoint = waypoints[(tempIndex + i - 2) % waypoints.Count].transform.position;
+            float distanceToNextWaypoint;
+            //Use players position in the first iteration
+            if (i == 1)
             {
-                GetComponent<LineRenderer>().positionCount = i;
-                return;
+                distanceToNextWaypoint = Vector3.Distance(transform.position, nextWaypoint);
             }
-
-            float distanceToNextWaypoint = Vector3.Distance(transform.position, waypoints[wayPointIndex + i].transform.position);
-            if (distanceToNextWaypoint <= distanceToWalk)
+            else
             {
-                GetComponent<LineRenderer>().SetPosition(i, waypoints[wayPointIndex + i].transform.position);
+                distanceToNextWaypoint = Vector3.Distance(curWaypoint, nextWaypoint);
+            }
+            if (distanceToNextWaypoint < distanceToWalk)
+            {
+                GetComponent<LineRenderer>().SetPosition(i, nextWaypoint);
+                pathCorners.Add(nextWaypoint);
                 distanceToWalk -= distanceToNextWaypoint;
             }
             else
             {
-                Vector3 endPos = waypoints[wayPointIndex + i].transform.position;
+                endPos = nextWaypoint;
 
-                Vector3 cutoffDir = waypoints[wayPointIndex + i].transform.position - waypoints[wayPointIndex + i - 1].transform.position;
+                Vector3 cutoffDir = curWaypoint - nextWaypoint;
                 cutoffDir.Normalize();
-                float cutoffLength = distanceToNextWaypoint - nrOfSteps * 2;
+                float cutoffLength = distanceToNextWaypoint - distanceToWalk;
                 endPos += cutoffDir * cutoffLength;
 
                 GetComponent<LineRenderer>().SetPosition(i, endPos);
+                pathCorners.Add(endPos);
                 distanceToWalk = 0;
             }
-
+            i++;
         }
-        distanceWalked = 0;
+
+        //Draw the enemies path
+        //for (int i = 1; i < waypoints.Count; i++)
+        //{
+        //    if (distanceToWalk <= 0)
+        //    {
+        //        GetComponent<LineRenderer>().positionCount = i;
+        //        break;
+        //    }
+
+        //    Vector3 nextWaypoint = waypoints[(tempIndex + i - 1) % waypoints.Count].transform.position;
+        //    Vector3 curWaypoint = waypoints[(tempIndex + i - 2) % waypoints.Count].transform.position;
+        //    float distanceToNextWaypoint;
+        //    //Use players position in the first iteration
+        //    if (i == 1)
+        //    {
+        //        distanceToNextWaypoint = Vector3.Distance(transform.position, nextWaypoint);
+        //    }
+        //    else
+        //    {
+        //        distanceToNextWaypoint = Vector3.Distance(curWaypoint, nextWaypoint);
+        //    }
+        //    if (distanceToNextWaypoint < distanceToWalk)
+        //    {
+        //        GetComponent<LineRenderer>().SetPosition(i, nextWaypoint);
+        //        pathCorners.Add(nextWaypoint);
+        //        distanceToWalk -= distanceToNextWaypoint;
+        //    }
+        //    else
+        //    {
+        //        endPos = nextWaypoint;
+
+        //        Vector3 cutoffDir = curWaypoint - nextWaypoint;
+        //        cutoffDir.Normalize();
+        //        float cutoffLength = distanceToNextWaypoint - distanceToWalk;
+        //        endPos += cutoffDir * cutoffLength;
+
+        //        GetComponent<LineRenderer>().SetPosition(i, endPos);
+        //        pathCorners.Add(endPos);
+        //        distanceToWalk = 0;
+        //    }
+        //}
     }
 
 
@@ -152,7 +261,7 @@ public class Enemy : MonoBehaviour
 
 
 
-    //Editor functions
+    ////Editor functions
     public GameObject AddWaypoint()
     {
         GameObject newWaypoint = new GameObject("Waypoint");

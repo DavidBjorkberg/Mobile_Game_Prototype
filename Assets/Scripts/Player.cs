@@ -16,8 +16,11 @@ public class Player : MonoBehaviour
     void Start()
     {
         lr = GetComponent<LineRenderer>();
+        agent = GetComponent<NavMeshAgent>();
+        agent.acceleration = acceleration;
+        agent.speed = movementSpeed * Game.game.movementSpeedFactor;
+        Game.game.gameState = Game.GameStates.ChoosePath;
     }
-
     void Update()
     {
         if (agent != null)
@@ -26,9 +29,6 @@ public class Player : MonoBehaviour
         }
         switch (Game.game.gameState)
         {
-            case Game.GameStates.ChooseSpawn:
-                Spawn();
-                break;
             case Game.GameStates.ChoosePath:
                 ChoosePath();
                 break;
@@ -43,20 +43,9 @@ public class Player : MonoBehaviour
                 break;
         }
     }
-    void Spawn()
+    public void Spawn(Vector3 spawnPos)
     {
-        if (Input.GetMouseButtonDown(0))
-        {
-            Vector3 spawnPos = Game.game.GetMousePosInWorld();
-            spawnPos.y = 0;
-
-            transform.position = spawnPos;
-            agent = gameObject.AddComponent<NavMeshAgent>();
-            agent.acceleration = acceleration;
-            agent.speed = movementSpeed;
-            Game.game.gameState = Game.GameStates.ChoosePath;
-        }
-
+        transform.position = spawnPos;
 
     }
     void ChoosePath()
@@ -76,7 +65,7 @@ public class Player : MonoBehaviour
 
             if (tempPath.corners.Length >= 2)
             {
-                agent.path = Game.game.RoundPath(Game.game.GetPathLength(tempPath),movementSpeed,tempPath,agent);
+                agent.path = Game.game.RoundPath(Game.game.GetPathLength(tempPath), movementSpeed, tempPath, agent);
                 DrawPath();
 
                 confirmPathClickPos = Game.game.GetMousePosInWorld();
@@ -93,8 +82,7 @@ public class Player : MonoBehaviour
         {
             Vector3 mousePos = Game.game.GetMousePosInWorld();
 
-            if ((mousePos - destination).magnitude <= confirmPathRadius
-                || (mousePos - confirmPathClickPos).magnitude <= confirmPathRadius)
+            if ((mousePos - confirmPathClickPos).magnitude <= confirmPathRadius)
             {
                 Game.game.StartRound();
             }
@@ -106,14 +94,17 @@ public class Player : MonoBehaviour
 
     public void Died()
     {
-        SceneManager.LoadScene(0);
+        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
     }
     void DrawPath()
     {
         lr.positionCount = agent.path.corners.Length;
         lr.SetPositions(agent.path.corners);
     }
-
+    public void InitializeRound()
+    {
+        lr.positionCount = 0;
+    }
 
     void DrawWalkRange()
     {

@@ -4,46 +4,67 @@ using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using System.Collections;
 using System.Collections.Generic;
+using UnityEditor;
+
 public class Game : MonoBehaviour
 {
     public static Game game;
     public GameObject playerPrefab;
-    public GameObject enemyPrefab;
-    [Range(0, 15)]
-    public int totalAmountOfEnemies;
     public int enemyFOV;
     public float stepSize;
-    public Text gameStateText;
+    public float movementSpeedFactor;
+    public enum Objective { Sneak, Elimination }
+    public Objective objective;
     internal int nrOfAliveEnemies;
     internal EnemyHandler enemyHandler;
     internal enum GameStates { ChooseSpawn, ChoosePath, ConfirmPath, Play }
     internal GameStates gameState;
     GameObject player;
+    [HideInInspector]
+    public GameObject goal;
+    [HideInInspector]
+    public GameObject startPos;
     private void Awake()
     {
-        player = Instantiate(playerPrefab, new Vector3(-100, 0, -100), Quaternion.identity);
-        player.name = "Player";
-
         if (game == null)
         {
             game = this;
         }
+        player = Instantiate(playerPrefab);
+        player.GetComponent<Player>().Spawn(startPos.transform.position);
+        player.name = "Player";
+
         enemyHandler = GameObject.Find("EnemyHandler").GetComponent<EnemyHandler>();
         foreach (Enemy enemy in enemyHandler.enemies)
         {
             enemy.GetComponent<LineRenderer>().material.mainTextureScale = new Vector2(1 / (stepSize * enemy.movementSpeed), 0);
         }
         player.GetComponent<LineRenderer>().material.mainTextureScale = new Vector2(1 / (stepSize * player.GetComponent<Player>().movementSpeed), 0);
-        nrOfAliveEnemies = totalAmountOfEnemies;
+        nrOfAliveEnemies = enemyHandler.enemies.Count;
     }
     void Start()
     {
+
     }
 
     void Update()
     {
         if (gameState == GameStates.Play)
         {
+            if (objective == Objective.Elimination)
+            {
+                if (enemyHandler.enemies.Count <= 0)
+                {
+                    CompletedLevel();
+                }
+            }
+            else if (objective == Objective.Sneak)
+            {
+                if ((player.transform.position - goal.transform.position).magnitude <= 2)
+                {
+                    CompletedLevel();
+                }
+            }
             bool noEnemyHasPath = true;
             foreach (Enemy enemy in enemyHandler.enemies)
             {
@@ -58,7 +79,6 @@ public class Game : MonoBehaviour
                 EndRound();
             }
         }
-        gameStateText.text = "";
     }
     public void StartRound()
     {
@@ -72,6 +92,29 @@ public class Game : MonoBehaviour
         {
             enemy.InitializeRound();
         }
+        player.GetComponent<Player>().InitializeRound();
+    }
+    void CompletedLevel()
+    {
+        LoadNextScene();
+    }
+    void LoadNextScene()
+    {
+        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex + 1);
+    }
+    public void CreateGoal()
+    {
+        goal = new GameObject();
+        goal.name = "Goal";
+        goal.transform.position += new Vector3(0, 1, 0);
+        EditorUtility.SetDirty(goal);
+    }
+    public void CreateStartPos()
+    {
+        startPos = new GameObject();
+        startPos.name = "Start Position";
+        startPos.transform.position += new Vector3(0, 1, 0);
+        EditorUtility.SetDirty(startPos);
     }
     public Vector3 GetMousePosInWorld()
     {
@@ -103,7 +146,7 @@ public class Game : MonoBehaviour
             int nrOfStepsRoundDown = Mathf.FloorToInt(lengthOfPath / (movementSpeed * stepSize));
             roundedLength = (movementSpeed * stepSize) * nrOfStepsRoundDown;
         }
-        
+
         float lengthChange = lengthOfPath - roundedLength;
 
         Vector3 cutoffDir = path.corners[path.corners.Length - 2] - path.corners[path.corners.Length - 1];
@@ -112,5 +155,18 @@ public class Game : MonoBehaviour
         NavMeshPath shortenedPath = new NavMeshPath();
         agent.CalculatePath(endPos, shortenedPath);
         return shortenedPath;
+    }
+    private void OnDrawGizmos()
+    {
+        if (goal != null)
+        {
+            Gizmos.color = Color.yellow;
+            Gizmos.DrawSphere(goal.transform.position, 1);
+        }
+        if (startPos != null && !Application.isPlaying)
+        {
+            Gizmos.color = Color.green;
+            Gizmos.DrawSphere(startPos.transform.position, 1);
+        }
     }
 }
