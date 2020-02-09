@@ -19,6 +19,8 @@ public class Game : MonoBehaviour
     internal EnemyHandler enemyHandler;
     internal enum GameStates { ChooseSpawn, ChoosePath, ConfirmPath, Play }
     internal GameStates gameState;
+    public enum GameMode { Action, Strategy }
+    public GameMode gameMode;
     GameObject player;
     [HideInInspector]
     public GameObject goal;
@@ -49,6 +51,20 @@ public class Game : MonoBehaviour
 
     void Update()
     {
+        switch (gameMode)
+        {
+            case GameMode.Action:
+                ActionUpdate();
+                break;
+            case GameMode.Strategy:
+                StrategyUpdate();
+                break;
+            default:
+                break;
+        }
+    }
+    void StrategyUpdate()
+    {
         if (gameState == GameStates.Play)
         {
             if (objective == Objective.Elimination)
@@ -77,6 +93,23 @@ public class Game : MonoBehaviour
             if (noEnemyHasPath && !player.GetComponent<Player>().agent.hasPath)
             {
                 EndRound();
+            }
+        }
+    }
+    void ActionUpdate()
+    {
+        if (objective == Objective.Elimination)
+        {
+            if (enemyHandler.enemies.Count <= 0)
+            {
+                CompletedLevel();
+            }
+        }
+        else if (objective == Objective.Sneak)
+        {
+            if ((player.transform.position - goal.transform.position).magnitude <= 2)
+            {
+                CompletedLevel();
             }
         }
     }

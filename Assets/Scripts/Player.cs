@@ -15,6 +15,27 @@ public class Player : MonoBehaviour
     LineRenderer lr;
     void Start()
     {
+        switch (Game.game.gameMode)
+        {
+            case Game.GameMode.Action:
+                ActionStart();
+                break;
+            case Game.GameMode.Strategy:
+                StrategyStart();
+                break;
+            default:
+                break;
+        }
+    }
+    void ActionStart()
+    {
+        lr = GetComponent<LineRenderer>();
+        agent = GetComponent<NavMeshAgent>();
+        agent.acceleration = acceleration;
+        agent.speed = movementSpeed * Game.game.movementSpeedFactor;
+    }
+    void StrategyStart()
+    {
         lr = GetComponent<LineRenderer>();
         agent = GetComponent<NavMeshAgent>();
         agent.acceleration = acceleration;
@@ -22,6 +43,28 @@ public class Player : MonoBehaviour
         Game.game.gameState = Game.GameStates.ChoosePath;
     }
     void Update()
+    {
+        switch (Game.game.gameMode)
+        {
+            case Game.GameMode.Action:
+                ActionUpdate();
+                break;
+            case Game.GameMode.Strategy:
+                StrategyUpdate();
+                break;
+            default:
+                break;
+        }
+
+    }
+    void ActionUpdate()
+    {
+        if(Input.GetMouseButton(0))
+        {
+            agent.destination = Game.game.GetMousePosInWorld();
+        }
+    }
+    void StrategyUpdate()
     {
         if (agent != null)
         {
@@ -37,7 +80,6 @@ public class Player : MonoBehaviour
                 ChoosePath();
                 break;
             case Game.GameStates.Play:
-                Move();
                 break;
             default:
                 break;
@@ -87,9 +129,6 @@ public class Player : MonoBehaviour
                 Game.game.StartRound();
             }
         }
-    }
-    void Move()
-    {
     }
 
     public void Died()

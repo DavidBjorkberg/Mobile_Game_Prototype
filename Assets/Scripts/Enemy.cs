@@ -26,6 +26,32 @@ public class Enemy : MonoBehaviour
     private MovementStates state;
     void Start()
     {
+        switch (Game.game.gameMode)
+        {
+            case Game.GameMode.Action:
+                ActionStart();
+                break;
+            case Game.GameMode.Strategy:
+                StrategyStart();
+                break;
+            default:
+                break;
+        }
+    }
+    void ActionStart()
+    {
+        chaseSpeed = movementSpeed * 2f;
+        if (waypoints == null)
+        {
+            waypoints = new List<GameObject>();
+        }
+        fieldOfView.enemy = gameObject;
+        player = GameObject.Find("Player");
+        agent = GetComponent<NavMeshAgent>();
+        agent.speed = movementSpeed * Game.game.movementSpeedFactor;
+    }
+    void StrategyStart()
+    {
         chaseSpeed = movementSpeed * 2f;
         if (waypoints == null)
         {
@@ -40,6 +66,30 @@ public class Enemy : MonoBehaviour
     }
     void Update()
     {
+        switch (Game.game.gameMode)
+        {
+            case Game.GameMode.Action:
+                ActionUpdate();
+                break;
+            case Game.GameMode.Strategy:
+                StrategyUpdate();
+                break;
+            default:
+                break;
+        }
+    }
+    void ActionUpdate()
+    {
+        ActionMove();
+        CheckFoV();
+
+        if (Physics.OverlapSphere(transform.position - transform.forward, 1f, 1 << 8).Length > 0)
+        {
+            Died();
+        }
+    }
+    void StrategyUpdate()
+    {
         switch (Game.game.gameState)
         {
             case Game.GameStates.ChooseSpawn:
@@ -49,7 +99,7 @@ public class Enemy : MonoBehaviour
             case Game.GameStates.ConfirmPath:
                 break;
             case Game.GameStates.Play:
-                Move();
+                StrategyMove();
                 CheckFoV();
                 break;
             default:
@@ -61,9 +111,8 @@ public class Enemy : MonoBehaviour
             Died();
         }
     }
-
     readonly float switchWaypointDistance = 0.7f;
-    void Move()
+    void StrategyMove()
     {
         switch (state)
         {
@@ -78,10 +127,71 @@ public class Enemy : MonoBehaviour
                 break;
             case MovementStates.Chasing:
                 agent.speed = chaseSpeed * Game.game.movementSpeedFactor;
-                agent.destination = lastSeenPlayerPos;
-                lastSeenPlayerTimer += Time.deltaTime;
-                if (lastSeenPlayerTimer >= chaseTime || !agent.hasPath)
+                if (agent.destination.x != lastSeenPlayerPos.x && agent.destination.z != lastSeenPlayerPos.z)
                 {
+                    agent.destination = lastSeenPlayerPos;
+                }   
+                if ((transform.position - lastSeenPlayerPos).magnitude <= 1f)
+                {
+                    agent.isStopped = true;
+                }
+                else
+                {
+                    agent.isStopped = false;
+                }
+
+                lastSeenPlayerTimer += Time.deltaTime;
+                if (lastSeenPlayerTimer >= chaseTime)
+                {
+                    agent.isStopped = false;
+                    state = MovementStates.Returning;
+                    agent.destination = GetClosestPointInPath();
+                }
+                break;
+            case MovementStates.Returning:
+                agent.speed = movementSpeed * Game.game.movementSpeedFactor;
+                if ((transform.position - agent.destination).magnitude <= switchWaypointDistance)
+                {
+                    state = MovementStates.Standard;
+                    agent.destination = waypoints[wayPointIndex].transform.position;
+                }
+                break;
+            default:
+                break;
+        }
+    }
+    void ActionMove()
+    {
+        switch (state)
+        {
+            case MovementStates.Standard:
+                if (!agent.hasPath || (transform.position - agent.destination).magnitude <= switchWaypointDistance)
+                {
+                    wayPointIndex = ++wayPointIndex % waypoints.Count;
+                    agent.destination = waypoints[wayPointIndex].transform.position;
+                }
+
+                agent.isStopped = Vector3.Distance(transform.position, endPos) <= 0.5f;
+                break;
+            case MovementStates.Chasing:
+                agent.speed = chaseSpeed * Game.game.movementSpeedFactor;
+                if (agent.destination.x != lastSeenPlayerPos.x && agent.destination.z != lastSeenPlayerPos.z)
+                {
+                    agent.destination = lastSeenPlayerPos;
+                }
+                if((transform.position - lastSeenPlayerPos).magnitude <= 1f)
+                {
+                    agent.isStopped = true;
+                }
+                else
+                {
+                    agent.isStopped = false;
+                }
+
+                lastSeenPlayerTimer += Time.deltaTime;
+                if (lastSeenPlayerTimer >= chaseTime)
+                {
+                    agent.isStopped = false;
                     state = MovementStates.Returning;
                     agent.destination = GetClosestPointInPath();
                 }
@@ -99,7 +209,6 @@ public class Enemy : MonoBehaviour
                 break;
         }
     }
-
     void Died()
     {
         Game.game.enemyHandler.KillEnemy(this);
