@@ -13,6 +13,7 @@ public class Player : MonoBehaviour
     Vector3 confirmPathClickPos;
     float confirmPathRadius = 1;
     LineRenderer lr;
+    bool moving;
     void Start()
     {
         switch (Game.game.gameMode)
@@ -59,9 +60,29 @@ public class Player : MonoBehaviour
     }
     void ActionUpdate()
     {
-        if(Input.GetMouseButton(0))
+        InitializeRound();
+        if (Input.GetMouseButtonDown(0))
         {
-            agent.destination = Game.game.GetMousePosInWorld();
+            moving = true;
+        }
+        else if(Input.GetMouseButtonUp(0))
+        {
+            moving = false;
+        }
+        else if (Input.GetMouseButton(0) && moving)
+        {
+            if (Game.game.GetMousePosInWorld().z > -12 && !Game.game.usingItem)
+            {
+                agent.destination = Game.game.GetMousePosInWorld();
+            }
+        }
+        if (!agent.hasPath)
+        {
+            Time.timeScale = 0.00001f;
+        }
+        else
+        {
+            Time.timeScale = 1;
         }
     }
     void StrategyUpdate()
@@ -143,6 +164,12 @@ public class Player : MonoBehaviour
     public void InitializeRound()
     {
         lr.positionCount = 0;
+        GetComponent<LineRenderer>().positionCount = agent.path.corners.Length;
+        GetComponent<LineRenderer>().SetPosition(0, transform.position);
+        for (int i = 0; i < agent.path.corners.Length; i++)
+        {
+            lr.SetPosition(i, agent.path.corners[i]);
+        }
     }
 
     void DrawWalkRange()

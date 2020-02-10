@@ -21,7 +21,8 @@ public class Game : MonoBehaviour
     internal GameStates gameState;
     public enum GameMode { Action, Strategy }
     public GameMode gameMode;
-    GameObject player;
+    internal bool usingItem;
+    internal GameObject player;
     [HideInInspector]
     public GameObject goal;
     [HideInInspector]
@@ -134,6 +135,10 @@ public class Game : MonoBehaviour
     void LoadNextScene()
     {
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex + 1);
+    }
+    public bool isPaused()
+    {
+        return !player.GetComponent<Player>().agent.hasPath;
     }
     public void CreateGoal()
     {
