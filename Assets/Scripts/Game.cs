@@ -22,6 +22,7 @@ public class Game : MonoBehaviour
     public enum GameMode { Action, Strategy }
     public GameMode gameMode;
     internal bool usingItem;
+    public List<Item> items = new List<Item>();
     internal GameObject player;
     [HideInInspector]
     public GameObject goal;
@@ -97,8 +98,24 @@ public class Game : MonoBehaviour
             }
         }
     }
+    public void AddItem(Item item)
+    {
+        items.Add(item);
+    }
+    public void RemoveItem(Item item)
+    {
+        items.Remove(item);
+    }
     void ActionUpdate()
     {
+        if (!player.GetComponent<Player>().agent.hasPath && items.Count <= 0)
+        {
+            Time.timeScale = 0.00001f;
+        }
+        else
+        {
+            Time.timeScale = 1;
+        }
         if (objective == Objective.Elimination)
         {
             if (enemyHandler.enemies.Count <= 0)
@@ -138,7 +155,7 @@ public class Game : MonoBehaviour
     }
     public bool isPaused()
     {
-        return !player.GetComponent<Player>().agent.hasPath;
+        return !player.GetComponent<Player>().agent.hasPath && items.Count <= 0;
     }
     public void CreateGoal()
     {

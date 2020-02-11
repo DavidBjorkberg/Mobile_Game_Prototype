@@ -61,29 +61,14 @@ public class Player : MonoBehaviour
     void ActionUpdate()
     {
         InitializeRound();
-        if (Input.GetMouseButtonDown(0))
-        {
-            moving = true;
-        }
-        else if(Input.GetMouseButtonUp(0))
-        {
-            moving = false;
-        }
-        else if (Input.GetMouseButton(0) && moving)
+        if (Input.GetMouseButton(0))
         {
             if (Game.game.GetMousePosInWorld().z > -12 && !Game.game.usingItem)
             {
                 agent.destination = Game.game.GetMousePosInWorld();
             }
         }
-        if (!agent.hasPath)
-        {
-            Time.timeScale = 0.00001f;
-        }
-        else
-        {
-            Time.timeScale = 1;
-        }
+ 
     }
     void StrategyUpdate()
     {

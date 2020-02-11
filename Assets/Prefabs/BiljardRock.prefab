@@ -11,10 +11,10 @@ GameObject:
   - component: {fileID: 4083745722651121127}
   - component: {fileID: 6888515423650700037}
   - component: {fileID: 3675161295863474960}
-  - component: {fileID: 2226728047924859259}
   - component: {fileID: -6507332707274661721}
+  - component: {fileID: -7165814667278408409}
   m_Layer: 0
-  m_Name: RockItem
+  m_Name: BiljardRock
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -80,22 +80,6 @@ MeshRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
---- !u!114 &2226728047924859259
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1209804541159441629}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e7d83e5eb417fb4419b791fa1b5bb015, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  speed: 20
-  hitLayer:
-    serializedVersion: 2
-    m_Bits: 512
 --- !u!135 &-6507332707274661721
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -109,3 +93,15 @@ SphereCollider:
   serializedVersion: 2
   m_Radius: 0.5
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &-7165814667278408409
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1209804541159441629}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3af761a3959d9a449b2ea5873dc97413, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 

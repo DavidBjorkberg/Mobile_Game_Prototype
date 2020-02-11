@@ -17,7 +17,7 @@ public class ItemMenu : MonoBehaviour
     {
 
     }
-    void LateUpdate()
+    void Update()
     {
         itemButton.gameObject.SetActive(Game.game.isPaused());
         if (choosingTarget)
@@ -26,7 +26,7 @@ public class ItemMenu : MonoBehaviour
             {
                 Vector3 targetPos = Game.game.GetMousePosInWorld();
                 selectedItem.UseItem(targetPos);
-                Game.game.usingItem = false;
+                
                 choosingTarget = false;
             }
         }
@@ -34,11 +34,16 @@ public class ItemMenu : MonoBehaviour
         {
 
         }
+        else if(Input.GetMouseButtonUp(0))
+        {
+            Game.game.usingItem = false;
+        }
     }
     public void SelectItem()
     {
         item = Items.Rock;
         selectedItem = Instantiate(rockItemPrefab, Game.game.player.transform.position, Quaternion.identity);
+
         choosingTarget = true;
         Game.game.usingItem = true;
     }
