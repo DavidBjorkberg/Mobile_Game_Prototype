@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Rock : Item
+public class ThrowingKnife : Item
 {
     public float speed;
     internal Vector3 endPos;
@@ -15,26 +15,41 @@ public class Rock : Item
     }
     public override void UseItem(Vector3 targetPos)
     {
+        Game.game.AddItem(this);
         isActive = true;
         direction = targetPos - transform.position;
+        direction.y = 0;
         direction.Normalize();
         endPos = targetPos;
+        endPos.y = Game.game.player.transform.position.y;
     }
     void Update()
     {
         if (isActive)
         {
             transform.position += speed * direction * Time.deltaTime;
-            Collider[] hits = Physics.OverlapSphere(transform.position, 0.6f, 1 << 9);
-
-            if (hits.Length > 0)
-            {
-                Game.game.enemyHandler.KillEnemy(hits[0].GetComponent<Enemy>());
-            }
             if ((transform.position - endPos).magnitude <= destroyRange)
             {
+                Game.game.RemoveItem(this);
                 Destroy(gameObject);
             }
         }
+    }
+    private void OnTriggerEnter(Collider other)
+    {
+        if (other.TryGetComponent(out Enemy enemy))
+        {
+            Game.game.enemyHandler.KillEnemy(enemy);
+            DestroyRock();
+        }
+        else if (other.TryGetComponent(out Obstacle obstacle))
+        {
+            DestroyRock();
+        }
+    }
+    void DestroyRock()
+    {
+        Game.game.RemoveItem(this);
+        Destroy(gameObject);
     }
 }

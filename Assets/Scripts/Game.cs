@@ -9,7 +9,6 @@ using UnityEditor;
 public class Game : MonoBehaviour
 {
     public static Game game;
-    public GameObject playerPrefab;
     public int enemyFOV;
     public float stepSize;
     public float movementSpeedFactor;
@@ -23,7 +22,7 @@ public class Game : MonoBehaviour
     public GameMode gameMode;
     internal bool usingItem;
     public List<Item> items = new List<Item>();
-    internal GameObject player;
+    public Player player;
     [HideInInspector]
     public GameObject goal;
     [HideInInspector]
@@ -34,9 +33,6 @@ public class Game : MonoBehaviour
         {
             game = this;
         }
-        player = Instantiate(playerPrefab);
-        player.GetComponent<Player>().Spawn(startPos.transform.position);
-        player.name = "Player";
 
         enemyHandler = GameObject.Find("EnemyHandler").GetComponent<EnemyHandler>();
         foreach (Enemy enemy in enemyHandler.enemies)

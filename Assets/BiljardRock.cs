@@ -6,9 +6,7 @@ public class BiljardRock : Item
 {
     public float speed;
     internal Vector3 direction;
-    float destroyRange = 0.5f;
     private bool isActive;
-    public LayerMask hitLayer;
     void Start()
     {
 
@@ -18,8 +16,8 @@ public class BiljardRock : Item
         Game.game.AddItem(this);
         isActive = true;
         this.direction = direction;
-        direction.y = 0;
-        direction.Normalize();
+        this.direction.y = 0;
+        this.direction.Normalize();
     }
     void Update()
     {
@@ -40,6 +38,7 @@ public class BiljardRock : Item
             DestroyRock();
         }
     }
+
     void DestroyRock()
     {
         Game.game.RemoveItem(this);

@@ -16,6 +16,7 @@ GameObject:
   - component: {fileID: 906109898}
   - component: {fileID: -7032703047869044361}
   - component: {fileID: -7597104333993137018}
+  - component: {fileID: -28816782524781199}
   m_Layer: 8
   m_Name: Player
   m_TagString: Untagged
@@ -113,6 +114,7 @@ MonoBehaviour:
   movementSpeed: 3
   acceleration: 40
   walkRange: 35
+  itemLr: {fileID: 1634117112343703124}
 --- !u!54 &906109898
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -245,6 +247,28 @@ NavMeshAgent:
   m_BaseOffset: 1
   m_WalkableMask: 4294967295
   m_ObstacleAvoidanceType: 4
+--- !u!114 &-28816782524781199
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1208327337311906657}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f19e0390407c0d3408d6a664fcdf6d08, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  itemSlots:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  inventoryUI: {fileID: 0}
 --- !u!1 &6709107694612374584
 GameObject:
   m_ObjectHideFlags: 0

@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
 using UnityEngine.SceneManagement;
+using UnityEngine.EventSystems;
+using UnityEngine.UI;
 public class Player : MonoBehaviour
 {
     public int movementSpeed;
@@ -13,6 +15,7 @@ public class Player : MonoBehaviour
     Vector3 confirmPathClickPos;
     float confirmPathRadius = 1;
     LineRenderer lr;
+    public LineRenderer itemLr;
     bool moving;
     void Start()
     {
@@ -60,15 +63,21 @@ public class Player : MonoBehaviour
     }
     void ActionUpdate()
     {
+        RectTransform inventoryUIRectTransform = GetComponent<Inventory>().inventoryUI.transform.GetChild(0).GetComponent<RectTransform>();
+        Vector2 mouseVector2 = inventoryUIRectTransform.InverseTransformPoint(Input.mousePosition);
+        Rect inventoryRect = inventoryUIRectTransform.rect;
         InitializeRound();
         if (Input.GetMouseButton(0))
         {
-            if (Game.game.GetMousePosInWorld().z > -12 && !Game.game.usingItem)
+            if (!Game.game.isPaused() || Game.game.isPaused() && !inventoryRect.Contains(mouseVector2))
             {
-                agent.destination = Game.game.GetMousePosInWorld();
+                if (!Game.game.usingItem)
+                {
+                    agent.destination = Game.game.GetMousePosInWorld();
+                }
             }
         }
- 
+
     }
     void StrategyUpdate()
     {
