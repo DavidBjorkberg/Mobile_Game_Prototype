@@ -6,12 +6,18 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
+    path: Assets/Scenes 1/DungeonStart.unity
+    guid: 76da864ef4c0d1942acedb022de6c5ca
+  - enabled: 0
+    path: Assets/Scenes 1/DungeonKey.unity
+    guid: 3ca6d031e12094447802bbf570fa8ac5
+  - enabled: 0
     path: Assets/Scenes 1/Sneak.unity
     guid: 2cda990e2423bbf4892e6590ba056729
-  - enabled: 1
+  - enabled: 0
     path: Assets/Scenes 1/Elimination.unity
     guid: 726c415c7571cf64da010a36ad029278
-  - enabled: 1
+  - enabled: 0
     path: Assets/Scenes 1/EndScreen.unity
     guid: beb48cc88515eb04a9611e1cd3e8bbfd
   m_configObjects: {}

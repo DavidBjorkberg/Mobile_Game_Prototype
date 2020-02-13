@@ -30,8 +30,7 @@ public class ThrowingKnife : Item
             transform.position += speed * direction * Time.deltaTime;
             if ((transform.position - endPos).magnitude <= destroyRange)
             {
-                Game.game.RemoveItem(this);
-                Destroy(gameObject);
+                DestroyRock();
             }
         }
     }

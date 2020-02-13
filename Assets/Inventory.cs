@@ -44,6 +44,8 @@ public class Inventory : MonoBehaviour
             //Activate inventory button, first child is the UI
             inventoryUI.transform.GetChild(nrOfUsedSlots + 1).gameObject.SetActive(true);
             inventoryUI.transform.GetChild(nrOfUsedSlots + 1).GetChild(0).GetComponent<Text>().text = itemSlots[nrOfUsedSlots].heldItem.itemName;
+            inventoryUI.transform.GetChild(nrOfUsedSlots + 1).GetComponent<Button>().interactable = itemSlots[nrOfUsedSlots].heldItem.isInteractable;
+            nrOfUsedSlots++;
         }
 
     }
@@ -58,17 +60,37 @@ public class Inventory : MonoBehaviour
                     itemSlots[i].nrOfCharges--;
                     if (itemSlots[i].nrOfCharges <= 0)
                     {
-                        itemSlots[i].holdsItem = false;
-                        itemSlots[i].heldItem = null;
-                        inventoryUI.transform.GetChild(nrOfUsedSlots + 1).gameObject.SetActive(false);
+                        RemoveItemFromInventory(i);
                     }
+                }
+                else
+                {
+                    RemoveItemFromInventory(i);
                 }
             }
         }
-        print("Tried to remove item that wasn't in inventory");
+    }
+    void RemoveItemFromInventory(int index)
+    {
+        itemSlots[index].holdsItem = false;
+        itemSlots[index].heldItem = null;
+        inventoryUI.transform.GetChild(nrOfUsedSlots).gameObject.SetActive(false);
+        nrOfUsedSlots--;
+
     }
     public void UseItem(int slotNumber)
     {
         Game.game.GetComponent<ItemHandler>().UseItem(itemSlots[slotNumber].heldItem);
+    }
+    public bool SearchInventory(Item item)
+    {
+        for (int i = 0; i < nrOfUsedSlots; i++)
+        {
+            if (itemSlots[i].heldItem == item)
+            {
+                return true;
+            }
+        }
+        return false;
     }
 }

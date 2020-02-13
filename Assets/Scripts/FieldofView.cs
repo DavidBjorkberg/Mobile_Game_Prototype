@@ -43,7 +43,7 @@ public class FieldofView : MonoBehaviour
             float angleRad = angle * (Mathf.PI / 180f);
             Vector3 angleVector = new Vector3(Mathf.Cos(angleRad), 0, Mathf.Sin(angleRad));
             Vector3 vertex;
-            if (!Physics.Raycast(origin, angleVector, out RaycastHit hit, viewDistance))
+            if (!Physics.Raycast(origin, angleVector, out RaycastHit hit, viewDistance) || hit.transform.gameObject.GetInstanceID() == gameObject.GetInstanceID())
             {
                 vertex = origin + angleVector * viewDistance;
             }

@@ -12,7 +12,7 @@ public class Game : MonoBehaviour
     public int enemyFOV;
     public float stepSize;
     public float movementSpeedFactor;
-    public enum Objective { Sneak, Elimination }
+    public enum Objective { Sneak, Elimination, Dungeon }
     public Objective objective;
     internal int nrOfAliveEnemies;
     internal EnemyHandler enemyHandler;

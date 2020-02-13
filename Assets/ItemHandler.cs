@@ -19,13 +19,14 @@ public class ItemHandler : MonoBehaviour
                 {
                     createdItem = Instantiate(throwingKnifePrefab, Game.game.player.transform.position, Quaternion.identity);
                 }
-                else
+                else 
                 {
                     createdItem = null;
                 }
                 choosingTarget = false;
-
+                Game.game.player.GetComponent<Inventory>().RemoveItem(currentItem);
                 createdItem.GetComponent<Item>().UseItem(targetPos);
+                
             }
         }
         else if (Input.GetMouseButtonUp(0))
