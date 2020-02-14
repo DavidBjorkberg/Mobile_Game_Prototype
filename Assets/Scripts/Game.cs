@@ -35,11 +35,11 @@ public class Game : MonoBehaviour
         }
 
         enemyHandler = GameObject.Find("EnemyHandler").GetComponent<EnemyHandler>();
-        foreach (Enemy enemy in enemyHandler.enemies)
-        {
-            enemy.GetComponent<LineRenderer>().material.mainTextureScale = new Vector2(1 / (stepSize * enemy.movementSpeed), 0);
-        }
-        player.GetComponent<LineRenderer>().material.mainTextureScale = new Vector2(1 / (stepSize * player.GetComponent<Player>().movementSpeed), 0);
+        //foreach (Enemy enemy in enemyHandler.enemies)
+        //{
+        //    enemy.GetComponent<LineRenderer>().material.mainTextureScale = new Vector2(1 / (stepSize * enemy.movementSpeed), 0);
+        //}
+        //player.GetComponent<LineRenderer>().material.mainTextureScale = new Vector2(1 / (stepSize * player.GetComponent<Player>().movementSpeed), 0);
         nrOfAliveEnemies = enemyHandler.enemies.Count;
     }
     void Start()
