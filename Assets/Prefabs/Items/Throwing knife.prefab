@@ -93,7 +93,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   isStackable: 1
+  isInteractable: 1
   itemName: Throwing knife
+  inventorySprite: {fileID: 21300000, guid: ed9a3e4cc842e9349816c48bdbd875e8, type: 3}
   speed: 20
 --- !u!135 &-6507332707274661721
 SphereCollider:

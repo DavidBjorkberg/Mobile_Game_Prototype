@@ -8,6 +8,7 @@ public abstract class Item : MonoBehaviour
     public bool isStackable = true;
     public bool isInteractable = true;
     public string itemName;
+    public Sprite inventorySprite;
     void Start()
     {
         

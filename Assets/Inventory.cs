@@ -31,6 +31,7 @@ public class Inventory : MonoBehaviour
                 if (itemSlots[i].heldItem == newItem)
                 {
                     itemSlots[i].nrOfCharges++;
+                    GetInventorySlotGO(i).transform.GetChild(0).GetComponent<Text>().text = "x" + itemSlots[i].nrOfCharges.ToString();
                     return;
                 }
             }
@@ -42,9 +43,10 @@ public class Inventory : MonoBehaviour
             itemSlots[nrOfUsedSlots].nrOfCharges++;
             itemSlots[nrOfUsedSlots].holdsItem = true;
             //Activate inventory button, first child is the UI
-            inventoryUI.transform.GetChild(nrOfUsedSlots + 1).gameObject.SetActive(true);
-            inventoryUI.transform.GetChild(nrOfUsedSlots + 1).GetChild(0).GetComponent<Text>().text = itemSlots[nrOfUsedSlots].heldItem.itemName;
-            inventoryUI.transform.GetChild(nrOfUsedSlots + 1).GetComponent<Button>().interactable = itemSlots[nrOfUsedSlots].heldItem.isInteractable;
+            GetInventorySlotGO(nrOfUsedSlots).SetActive(true);
+            GetInventorySlotGO(nrOfUsedSlots).transform.GetChild(0).GetComponent<Text>().text = "x" + itemSlots[nrOfUsedSlots].nrOfCharges.ToString();
+            GetInventorySlotGO(nrOfUsedSlots).GetComponent<Button>().GetComponent<Image>().sprite = itemSlots[nrOfUsedSlots].heldItem.inventorySprite;
+            GetInventorySlotGO(nrOfUsedSlots).GetComponent<Button>().interactable = itemSlots[nrOfUsedSlots].heldItem.isInteractable;
             nrOfUsedSlots++;
         }
 
@@ -58,6 +60,7 @@ public class Inventory : MonoBehaviour
                 if (itemSlots[i].heldItem.isStackable)
                 {
                     itemSlots[i].nrOfCharges--;
+                    GetInventorySlotGO(i).transform.GetChild(0).GetComponent<Text>().text = "x" + itemSlots[i].nrOfCharges.ToString();
                     if (itemSlots[i].nrOfCharges <= 0)
                     {
                         RemoveItemFromInventory(i);
@@ -69,6 +72,10 @@ public class Inventory : MonoBehaviour
                 }
             }
         }
+    }
+    private GameObject GetInventorySlotGO(int index)
+    {
+        return inventoryUI.transform.GetChild(index + 1).gameObject;
     }
     void RemoveItemFromInventory(int index)
     {

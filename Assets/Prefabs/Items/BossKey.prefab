@@ -46,3 +46,4 @@ MonoBehaviour:
   isStackable: 0
   isInteractable: 0
   itemName: Boss key
+  inventorySprite: {fileID: 21300000, guid: 1eef36d1305e37b46a9377c8d12cdac6, type: 3}
