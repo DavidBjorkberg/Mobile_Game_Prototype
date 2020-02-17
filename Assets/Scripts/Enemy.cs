@@ -11,7 +11,9 @@ public class Enemy : MonoBehaviour
     public int nrOfSteps;
     public float killDistance;
     public float chaseTime;
+    public bool circulate = true;
     internal NavMeshAgent agent;
+    private bool walkingBack;
     private int wayPointIndex = 0;
     private GameObject player;
     private Vector3 endPos;
@@ -130,7 +132,7 @@ public class Enemy : MonoBehaviour
                 if (agent.destination.x != lastSeenPlayerPos.x && agent.destination.z != lastSeenPlayerPos.z)
                 {
                     agent.destination = lastSeenPlayerPos;
-                }   
+                }
                 if ((transform.position - lastSeenPlayerPos).magnitude <= 1f)
                 {
                     agent.isStopped = true;
@@ -167,7 +169,29 @@ public class Enemy : MonoBehaviour
             case MovementStates.Standard:
                 if (!agent.hasPath || (transform.position - agent.destination).magnitude <= switchWaypointDistance)
                 {
-                    wayPointIndex = ++wayPointIndex % waypoints.Count;
+                    if (circulate)
+                    {
+                        wayPointIndex = ++wayPointIndex % waypoints.Count;
+                    }
+                    else
+                    {
+                        if (walkingBack)
+                        {
+                            wayPointIndex--;
+                        }
+                        else
+                        {
+                            wayPointIndex++;
+                        }
+                        if (wayPointIndex == 0)
+                        {
+                            walkingBack = false;
+                        }
+                        else if (wayPointIndex >= waypoints.Count - 1)
+                        {
+                            walkingBack = true;
+                        }
+                    }
                     agent.destination = waypoints[wayPointIndex].transform.position;
                 }
 
@@ -179,7 +203,7 @@ public class Enemy : MonoBehaviour
                 {
                     agent.destination = lastSeenPlayerPos;
                 }
-                if((transform.position - lastSeenPlayerPos).magnitude <= 1f)
+                if ((transform.position - lastSeenPlayerPos).magnitude <= 1f)
                 {
                     agent.isStopped = true;
                 }
