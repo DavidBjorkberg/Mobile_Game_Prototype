@@ -1660,6 +1660,14 @@ PrefabInstance:
       propertyPath: inventoryUI
       value: 
       objectReference: {fileID: 1634843602}
+    - target: {fileID: 906109898, guid: 9690d07f6eb39c34f9d4adb4f5dc8d81, type: 3}
+      propertyPath: m_Constraints
+      value: 126
+      objectReference: {fileID: 0}
+    - target: {fileID: 906109898, guid: 9690d07f6eb39c34f9d4adb4f5dc8d81, type: 3}
+      propertyPath: m_AngularDrag
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 1208327337311906657, guid: 9690d07f6eb39c34f9d4adb4f5dc8d81,
         type: 3}
       propertyPath: m_Name
@@ -11800,6 +11808,11 @@ PrefabInstance:
       propertyPath: m_Constraints
       value: 126
       objectReference: {fileID: 0}
+    - target: {fileID: 8506347881620366675, guid: 2e253760d50373544b2ee24d869443e6,
+        type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: 397bab91e4725314584e00e07fc86580, type: 2}
     - target: {fileID: 8506347881620366701, guid: 2e253760d50373544b2ee24d869443e6,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -19307,7 +19320,7 @@ PrefabInstance:
     - target: {fileID: 1917599998258281539, guid: 8c3b5183b17ee2b4f838d9c88e3ae92a,
         type: 3}
       propertyPath: m_LocalScale.x
-      value: 2.8099995
+      value: 2.8
       objectReference: {fileID: 0}
     - target: {fileID: 1917599998258281540, guid: 8c3b5183b17ee2b4f838d9c88e3ae92a,
         type: 3}
