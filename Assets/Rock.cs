@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class ThrowingKnife : Item
+public class Rock : Item
 {
     public float speed;
     internal Vector3 endPos;
@@ -23,22 +23,22 @@ public class ThrowingKnife : Item
         if (isActive)
         {
             transform.position += speed * direction * Time.deltaTime;
-          
         }
     }
     private void OnTriggerEnter(Collider other)
     {
         if (other.TryGetComponent(out Enemy enemy))
         {
-            Game.game.enemyHandler.KillEnemy(enemy);
-            DestroyItem();
+            enemy.Stun();
+            DestroyRock();
         }
         else if (other.TryGetComponent(out Obstacle obstacle))
         {
-            DestroyItem();
+            Game.game.CreateSoundSource(transform.position);
+            DestroyRock();
         }
     }
-    void DestroyItem()
+    void DestroyRock()
     {
         Game.game.RemoveItem(this);
         Destroy(gameObject);

@@ -58,4 +58,5 @@ public class Player : MonoBehaviour
             lr.SetPosition(i, agent.path.corners[i]);
         }
     }
+
 }

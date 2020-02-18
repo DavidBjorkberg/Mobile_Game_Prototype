@@ -5,6 +5,7 @@ using UnityEngine;
 public class ItemHandler : MonoBehaviour
 {
     public GameObject throwingKnifePrefab;
+    public GameObject rockPrefab;
     private Item currentItem;
     private bool choosingTarget;
     void Update()
@@ -18,6 +19,10 @@ public class ItemHandler : MonoBehaviour
                 if (currentItem is ThrowingKnife)
                 {
                     createdItem = Instantiate(throwingKnifePrefab, Game.game.player.transform.position, Quaternion.identity);
+                }
+                else if(currentItem is Rock)
+                {
+                    createdItem = Instantiate(rockPrefab, Game.game.player.transform.position, Quaternion.identity);
                 }
                 else 
                 {

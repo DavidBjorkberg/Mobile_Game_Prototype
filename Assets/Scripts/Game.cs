@@ -12,15 +12,12 @@ public class Game : MonoBehaviour
     public int enemyFOV;
     public float stepSize;
     public float movementSpeedFactor;
+    public Player player;
+    public SoundSource soundSourcePrefab;
     internal int nrOfAliveEnemies;
     internal EnemyHandler enemyHandler;
     internal bool usingItem;
-    public List<Item> activeItems = new List<Item>();
-    public Player player;
-    [HideInInspector]
-    public GameObject goal;
-    [HideInInspector]
-    public GameObject startPos;
+    internal List<Item> activeItems = new List<Item>();
     private void Awake()
     {
         if (game == null)
@@ -30,6 +27,10 @@ public class Game : MonoBehaviour
 
         enemyHandler = GameObject.Find("EnemyHandler").GetComponent<EnemyHandler>();
         nrOfAliveEnemies = enemyHandler.enemies.Count;
+    }
+    private void Start()
+    {
+        
     }
     void Update()
     {
@@ -62,8 +63,9 @@ public class Game : MonoBehaviour
         worldPos.y = 0;
         return worldPos;
     }
-    public void CreateSoundSource(Vector3 origin, float strength)
+    public void CreateSoundSource(Vector3 origin, float range = 10)
     {
-
+        SoundSource soundSourceGO = Instantiate(soundSourcePrefab, origin, Quaternion.identity);
+        soundSourceGO.range = range;
     }
 }

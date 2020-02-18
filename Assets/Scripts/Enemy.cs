@@ -16,11 +16,11 @@ public class Enemy : MonoBehaviour
     private bool walkingBack;
     private int wayPointIndex = 0;
     private GameObject player;
-    private Vector3 endPos;
     private float lastSeenPlayerTimer;
     private Vector3 lastSeenPlayerPos;
     private float chaseSpeed;
-    private List<Vector3> pathCorners = new List<Vector3>();
+    private bool isStunned;
+    private float stunTimer;
     private enum MovementStates
     {
         Standard, Chasing, Returning
@@ -38,19 +38,32 @@ public class Enemy : MonoBehaviour
         agent = GetComponent<NavMeshAgent>();
         agent.speed = movementSpeed * Game.game.movementSpeedFactor;
     }
- 
+
     void Update()
     {
-        ActionMove();
-        CheckFoV();
+        if (!isStunned)
+        {
+            CheckFoV();
+            Move();
+        }
+        else if (stunTimer <= 0)
+        {
+            fieldOfView.gameObject.SetActive(true);
+            agent.isStopped = false;
+            isStunned = false;
 
+        }
+        else
+        {
+            stunTimer -= Time.deltaTime;
+        }
         if (Physics.OverlapSphere(transform.position - transform.forward, 1f, 1 << 8).Length > 0)
         {
             Died();
         }
     }
     readonly float switchWaypointDistance = 0.7f;
-    void ActionMove()
+    void Move()
     {
         switch (state)
         {
@@ -142,13 +155,7 @@ public class Enemy : MonoBehaviour
     {
         if (distanceToPlayer > killDistance)
         {
-            if (state != MovementStates.Chasing)
-            {
-                state = MovementStates.Chasing;
-            }
-
-            lastSeenPlayerTimer = 0;
-            lastSeenPlayerPos = player.transform.position;
+            SetChaseState(player.transform.position);
         }
         else
         {
@@ -156,6 +163,23 @@ public class Enemy : MonoBehaviour
             player.GetComponent<Player>().Died();
         }
 
+    }
+    public void SetChaseState(Vector3 targetPos)
+    {
+        if (state != MovementStates.Chasing)
+        {
+            state = MovementStates.Chasing;
+        }
+
+        lastSeenPlayerTimer = 0;
+        lastSeenPlayerPos = targetPos;
+    }
+    public void Stun(float stunDuration = 1)
+    {
+        agent.isStopped = true;
+        isStunned = true;
+        stunTimer = stunDuration;
+        fieldOfView.gameObject.SetActive(false);
     }
     Vector3 GetClosestPointInPath()
     {
@@ -170,7 +194,7 @@ public class Enemy : MonoBehaviour
             float d = Mathf.Clamp(Vector3.Dot(v, direction), 0, length);
             Vector3 point = waypoints[i].transform.position + direction * d;
             if (d < closestDistance)
-            {   
+            {
                 closestDistance = d;
                 closestPoint = point;
             }
