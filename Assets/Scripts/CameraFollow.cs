@@ -18,11 +18,8 @@ public class CameraFollow : MonoBehaviour
 
     void Update()
     {
-        if (Game.game.gameState != Game.GameStates.ChooseSpawn)
-        {
-            newPosX = Mathf.SmoothDamp(transform.position.x, player.transform.position.x, ref xVelocity, smoothTime);
-            newPosZ = Mathf.SmoothDamp(transform.position.z, player.transform.position.z, ref zVelocity, smoothTime);
-            transform.position = new Vector3(newPosX, transform.position.y, newPosZ);
-        }
+        newPosX = Mathf.SmoothDamp(transform.position.x, player.transform.position.x, ref xVelocity, smoothTime);
+        newPosZ = Mathf.SmoothDamp(transform.position.z, player.transform.position.z, ref zVelocity, smoothTime);
+        transform.position = new Vector3(newPosX, transform.position.y, newPosZ);
     }
 }

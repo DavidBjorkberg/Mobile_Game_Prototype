@@ -20,7 +20,7 @@ public class ItemMenu : MonoBehaviour
     }
     void Update()
     {
-        inventory.SetActive(Game.game.isPaused());
+        inventory.SetActive(Game.game.IsPaused());
         if (choosingTarget)
         {
             if (Input.GetMouseButtonDown(0))

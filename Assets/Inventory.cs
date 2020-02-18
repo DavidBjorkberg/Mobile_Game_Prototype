@@ -19,7 +19,7 @@ public class Inventory : MonoBehaviour
 
     void Update()
     {
-        inventoryUI.SetActive(Game.game.isPaused());
+        inventoryUI.SetActive(Game.game.IsPaused());
     }
     public void AddItem(Item newItem)
     {

@@ -7,12 +7,7 @@ public class ThrowingKnife : Item
     public float speed;
     internal Vector3 endPos;
     internal Vector3 direction;
-    float destroyRange = 0.5f;
     private bool isActive;
-    void Start()
-    {
-
-    }
     public override void UseItem(Vector3 targetPos)
     {
         Game.game.AddItem(this);
@@ -28,10 +23,7 @@ public class ThrowingKnife : Item
         if (isActive)
         {
             transform.position += speed * direction * Time.deltaTime;
-            if ((transform.position - endPos).magnitude <= destroyRange)
-            {
-                DestroyRock();
-            }
+          
         }
     }
     private void OnTriggerEnter(Collider other)
