@@ -85,9 +85,10 @@ public class Inventory : MonoBehaviour
         nrOfUsedSlots--;
 
     }
-    public void UseItem(int slotNumber)
+    public void OnInventoryButtonClick(int slotNumber)
     {
-        Game.game.GetComponent<ItemHandler>().UseItem(itemSlots[slotNumber].heldItem);
+        Game.game.GetComponent<ItemHandler>().SelectItem(itemSlots[slotNumber].heldItem);
+
     }
     public bool SearchInventory(Item item)
     {

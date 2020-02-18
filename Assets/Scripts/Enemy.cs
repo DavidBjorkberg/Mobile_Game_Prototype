@@ -166,11 +166,7 @@ public class Enemy : MonoBehaviour
     }
     public void SetChaseState(Vector3 targetPos)
     {
-        if (state != MovementStates.Chasing)
-        {
-            state = MovementStates.Chasing;
-        }
-
+        state = MovementStates.Chasing;
         lastSeenPlayerTimer = 0;
         lastSeenPlayerPos = targetPos;
     }

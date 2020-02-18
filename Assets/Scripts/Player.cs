@@ -29,13 +29,11 @@ public class Player : MonoBehaviour
     }
     void Update()
     {
-        RectTransform inventoryUIRectTransform = GetComponent<Inventory>().inventoryUI.transform.GetChild(0).GetComponent<RectTransform>();
-        Vector2 mouseVector2 = inventoryUIRectTransform.InverseTransformPoint(Input.mousePosition);
-        Rect inventoryRect = inventoryUIRectTransform.rect;
+
         InitializeRound();
         if (Input.GetMouseButton(0))
         {
-            if (!Game.game.IsPaused() || Game.game.IsPaused() && !inventoryRect.Contains(mouseVector2))
+            if (!Game.game.IsPaused() || Game.game.IsPaused() && !Game.game.IsMouseOnInventory())
             {
                 if (!Game.game.usingItem)
                 {

@@ -12,7 +12,7 @@ public class ItemHandler : MonoBehaviour
     {
         if (choosingTarget)
         {
-            if (Input.GetMouseButtonDown(0))
+            if (Input.GetMouseButtonDown(0) && !Game.game.IsMouseOnInventory())
             {
                 Vector3 targetPos = Game.game.GetMousePosInWorld();
                 GameObject createdItem;
@@ -39,10 +39,16 @@ public class ItemHandler : MonoBehaviour
             Game.game.usingItem = false;
         }
     }
-    public void UseItem(Item item)
+    public void SelectItem(Item item)
     {
         choosingTarget = true;
         currentItem = item;
         Game.game.usingItem = true;
+    }
+    public void DeselectItem()
+    {
+        choosingTarget = false;
+        currentItem = null;
+        Game.game.usingItem = false;
     }
 }

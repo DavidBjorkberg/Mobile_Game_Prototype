@@ -15,6 +15,7 @@ public class Rock : Item
         direction = targetPos - transform.position;
         direction.y = 0;
         direction.Normalize();
+        transform.LookAt(transform.position + direction);
         endPos = targetPos;
         endPos.y = Game.game.player.transform.position.y;
     }
@@ -23,7 +24,13 @@ public class Rock : Item
         if (isActive)
         {
             transform.position += speed * direction * Time.deltaTime;
+            if((transform.position - endPos).magnitude <= 0.5f)
+            {
+                Game.game.CreateSoundSource(transform.position);
+                DestroyRock();
+            }
         }
+
     }
     private void OnTriggerEnter(Collider other)
     {

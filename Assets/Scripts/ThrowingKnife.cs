@@ -17,6 +17,8 @@ public class ThrowingKnife : Item
         direction.Normalize();
         endPos = targetPos;
         endPos.y = Game.game.player.transform.position.y;
+        transform.LookAt(transform.position + direction);
+
     }
     void Update()
     {

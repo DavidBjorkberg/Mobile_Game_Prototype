@@ -14,12 +14,16 @@ public class Game : MonoBehaviour
     public float movementSpeedFactor;
     public Player player;
     public SoundSource soundSourcePrefab;
+    RectTransform inventoryUIRectTransform;
     internal int nrOfAliveEnemies;
     internal EnemyHandler enemyHandler;
     internal bool usingItem;
     internal List<Item> activeItems = new List<Item>();
+
     private void Awake()
     {
+
+        inventoryUIRectTransform = player.GetComponent<Inventory>().inventoryUI.transform.GetChild(0).GetComponent<RectTransform>();
         if (game == null)
         {
             game = this;
@@ -50,6 +54,12 @@ public class Game : MonoBehaviour
     public void RemoveItem(Item item)
     {
         activeItems.Remove(item);
+    }
+    public bool IsMouseOnInventory()
+    {
+        Vector2 mouseVector2 = inventoryUIRectTransform.InverseTransformPoint(Input.mousePosition);
+        Rect inventoryRect = inventoryUIRectTransform.rect;
+        return inventoryRect.Contains(mouseVector2);
     }
     public bool IsPaused()
     {
