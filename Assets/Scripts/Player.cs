@@ -20,13 +20,6 @@ public class Player : MonoBehaviour
         agent.acceleration = acceleration;
         agent.speed = movementSpeed * Game.game.movementSpeedFactor;
     }
-    void ActionStart()
-    {
-        lr = GetComponent<LineRenderer>();
-        agent = GetComponent<NavMeshAgent>();
-        agent.acceleration = acceleration;
-        agent.speed = movementSpeed * Game.game.movementSpeedFactor;
-    }
     void Update()
     {
 

@@ -11,7 +11,7 @@ public class EnemyHandler : MonoBehaviour
     {
         return enemies[index];
     }
-
+#if UNITY_EDITOR
     public GameObject CreateEnemy()
     {
         GameObject enemyGO = Instantiate(enemyPrefab, new Vector3(0, 1, 0), Quaternion.identity);
@@ -41,6 +41,7 @@ public class EnemyHandler : MonoBehaviour
         DestroyImmediate(enemy.gameObject);
         enemy.RemoveAllWaypoints(true);
     }
+#endif
     public void KillEnemy(Enemy enemy)
     {
         enemies.Remove(enemy);

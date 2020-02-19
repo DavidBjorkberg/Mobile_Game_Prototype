@@ -207,7 +207,7 @@ public class Enemy : MonoBehaviour
 
 
 
-
+#if UNITY_EDITOR
     ////Editor functions
     public GameObject AddWaypoint()
     {
@@ -248,4 +248,5 @@ public class Enemy : MonoBehaviour
             waypoints.RemoveAt(0);
         }
     }
+#endif
 }
