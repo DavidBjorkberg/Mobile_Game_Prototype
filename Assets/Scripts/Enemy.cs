@@ -12,6 +12,7 @@ public class Enemy : MonoBehaviour
     public float killDistance;
     public float chaseTime;
     public bool circulate = true;
+    public int roomNumber;
     internal NavMeshAgent agent;
     private bool walkingBack;
     private int wayPointIndex = 0;

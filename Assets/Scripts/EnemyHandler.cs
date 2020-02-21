@@ -11,6 +11,17 @@ public class EnemyHandler : MonoBehaviour
     {
         return enemies[index];
     }
+    public bool IsAllEnemiesDeadInRoom(int index)
+    {
+        for (int i = 0; i < enemies.Count; i++)
+        {
+            if(enemies[i].roomNumber == index)
+            {
+                return false;
+            }
+        }
+        return true;
+    }
 #if UNITY_EDITOR
     public GameObject CreateEnemy()
     {

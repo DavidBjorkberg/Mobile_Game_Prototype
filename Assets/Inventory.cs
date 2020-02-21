@@ -5,7 +5,9 @@ using UnityEngine.UI;
 
 public class Inventory : MonoBehaviour
 {
-    static int nrOfItemSlots = 8;
+    static int nrOfItemSlots = 3;
+    public List<Item> startItems = new List<Item>();
+    public List<int> startCharges = new List<int>();
     public ItemSlot[] itemSlots = new ItemSlot[nrOfItemSlots];
     public GameObject inventoryUI;
     private int nrOfUsedSlots = 0;
@@ -15,11 +17,30 @@ public class Inventory : MonoBehaviour
         {
             itemSlots[i] = ScriptableObject.CreateInstance("ItemSlot") as ItemSlot;
         }
+        RefreshItems();
     }
 
     void Update()
     {
-        inventoryUI.SetActive(Game.game.IsPaused());
+    }
+    public void RefreshItems()
+    {
+        for (int i = nrOfUsedSlots - 1; i >= 0; i--)
+        {
+            RemoveItemFromInventory(i);
+        }
+        for (int i = 0; i < startItems.Count; i++)
+        {
+            for (int j = 0; j < startCharges[i]; j++)
+            {
+                AddItem(startItems[i]);
+            }
+        }
+    }
+    public void AddStartItem(Item item, int nrOfCharges)
+    {
+        startItems.Add(item);
+        startCharges.Add(nrOfCharges);
     }
     public void AddItem(Item newItem)
     {
@@ -41,7 +62,6 @@ public class Inventory : MonoBehaviour
         {
             itemSlots[nrOfUsedSlots].heldItem = newItem;
             itemSlots[nrOfUsedSlots].nrOfCharges++;
-            itemSlots[nrOfUsedSlots].holdsItem = true;
             //Activate inventory button, first child is the UI
             GetInventorySlotGO(nrOfUsedSlots).SetActive(true);
             GetInventorySlotGO(nrOfUsedSlots).transform.GetChild(0).GetComponent<Text>().text = "x" + itemSlots[nrOfUsedSlots].nrOfCharges.ToString();
@@ -79,9 +99,9 @@ public class Inventory : MonoBehaviour
     }
     void RemoveItemFromInventory(int index)
     {
-        itemSlots[index].holdsItem = false;
         itemSlots[index].heldItem = null;
-        inventoryUI.transform.GetChild(nrOfUsedSlots).gameObject.SetActive(false);
+        itemSlots[index].nrOfCharges = 0;
+        inventoryUI.transform.GetChild(index + 1).gameObject.SetActive(false);
         nrOfUsedSlots--;
 
     }

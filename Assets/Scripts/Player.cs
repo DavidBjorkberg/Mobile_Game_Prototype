@@ -26,7 +26,7 @@ public class Player : MonoBehaviour
         InitializeRound();
         if (Input.GetMouseButton(0))
         {
-            if (!Game.game.IsPaused() || Game.game.IsPaused() && !Game.game.IsMouseOnInventory())
+            if (!Game.game.IsMouseOnInventory())
             {
                 if (!Game.game.usingItem)
                 {

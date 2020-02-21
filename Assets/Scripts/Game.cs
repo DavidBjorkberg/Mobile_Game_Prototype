@@ -14,12 +14,16 @@ public class Game : MonoBehaviour
     public float movementSpeedFactor;
     public Player player;
     public SoundSource soundSourcePrefab;
+    public Item ThrowingKnifePrefab;
+    public Item RockPrefab;
+    public List<GameObject> startPoints = new List<GameObject>();
+    public List<Camera> cameras = new List<Camera>();
     RectTransform inventoryUIRectTransform;
     internal int nrOfAliveEnemies;
     internal EnemyHandler enemyHandler;
     internal bool usingItem;
     internal List<Item> activeItems = new List<Item>();
-
+    private int currentRoom = 0;
     private void Awake()
     {
 
@@ -34,10 +38,15 @@ public class Game : MonoBehaviour
     }
     private void Start()
     {
-        
+
     }
     void Update()
     {
+       
+        if(enemyHandler.IsAllEnemiesDeadInRoom(currentRoom))
+        {
+            NextRoom();
+        }
         if (IsPaused())
         {
             Time.timeScale = 0.00001f;
@@ -46,6 +55,24 @@ public class Game : MonoBehaviour
         {
             Time.timeScale = 1;
         }
+    }
+    public void NextRoom()
+    {
+        currentRoom++;
+        cameras[currentRoom - 1].gameObject.SetActive(false);
+        cameras[currentRoom].gameObject.SetActive(true);
+        player.agent.Warp(startPoints[currentRoom].transform.position);
+        player.agent.ResetPath();
+        if(currentRoom == 1)
+        {
+            player.GetComponent<Inventory>().AddStartItem(RockPrefab, 2);   
+        }
+        else if(currentRoom == 2)
+        {
+
+        }
+        player.GetComponent<Inventory>().RefreshItems();
+
     }
     public void AddItem(Item item)
     {
@@ -63,7 +90,7 @@ public class Game : MonoBehaviour
     }
     public bool IsPaused()
     {
-        return !player.GetComponent<Player>().agent.hasPath && activeItems.Count <= 0;
+        return !player.GetComponent<Player>().agent.hasPath && activeItems.Count <= 0 ;
     }
     public Vector3 GetMousePosInWorld()
     {
