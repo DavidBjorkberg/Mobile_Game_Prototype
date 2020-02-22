@@ -6,6 +6,8 @@ public class ItemHandler : MonoBehaviour
 {
     public GameObject throwingKnifePrefab;
     public GameObject rockPrefab;
+    public GameObject decoyPrefab;
+    public GameObject vanishPrefab;
     private Item currentItem;
     private bool choosingTarget;
     void Update()
@@ -23,6 +25,14 @@ public class ItemHandler : MonoBehaviour
                 else if(currentItem is Rock)
                 {
                     createdItem = Instantiate(rockPrefab, Game.game.player.transform.position, Quaternion.identity);
+                }
+                else if(currentItem is Decoy)
+                {
+                    createdItem = Instantiate(decoyPrefab, Game.game.player.transform.position, Quaternion.identity);
+                }
+                else if(currentItem is Vanish)
+                {
+                    createdItem = Instantiate(vanishPrefab, Game.game.player.transform.position, Quaternion.identity);
                 }
                 else 
                 {

@@ -19,6 +19,7 @@ public class Game : MonoBehaviour
     public List<GameObject> startPoints = new List<GameObject>();
     public List<Camera> cameras = new List<Camera>();
     RectTransform inventoryUIRectTransform;
+    internal List<Decoy> activeDecoys = new List<Decoy>();
     internal int nrOfAliveEnemies;
     internal EnemyHandler enemyHandler;
     internal bool usingItem;

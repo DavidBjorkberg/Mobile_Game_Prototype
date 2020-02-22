@@ -22,7 +22,6 @@ public class Player : MonoBehaviour
     }
     void Update()
     {
-
         InitializeRound();
         if (Input.GetMouseButton(0))
         {

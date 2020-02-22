@@ -139,15 +139,31 @@ public class Enemy : MonoBehaviour
     }
     void CheckFoV()
     {
-        Vector3 enemyToPlayer = player.transform.position - transform.position;
-        float angle = Vector3.Angle(enemyToPlayer.normalized, transform.forward) * 2;
+        //Player
+        Vector3 enemyToTarget = player.transform.position - transform.position;
+        float angle = Vector3.Angle(enemyToTarget.normalized, transform.forward) * 2;
         if (angle <= fieldOfView.fov)
         {
-            if (Physics.Raycast(transform.position, enemyToPlayer.normalized, out RaycastHit hit, fieldOfView.viewDistance, 1 << 8 | 1 << 10))
+            if (Physics.Raycast(transform.position, enemyToTarget.normalized, out RaycastHit hit, fieldOfView.viewDistance, 1 << 8 | 1 << 10))
             {
                 if (hit.transform.TryGetComponent(out Player player))
                 {
-                    DetectedPlayer(enemyToPlayer.magnitude);
+                    DetectedPlayer(enemyToTarget.magnitude);
+                }
+            }
+        }
+        for (int i = 0; i < Game.game.activeDecoys.Count; i++)
+        {
+            enemyToTarget = Game.game.activeDecoys[i].transform.position - transform.position;
+            angle = Vector3.Angle(enemyToTarget.normalized, transform.forward) * 2;
+            if (angle <= fieldOfView.fov)
+            {
+                if (Physics.Raycast(transform.position, enemyToTarget.normalized, out RaycastHit hit, fieldOfView.viewDistance, 1 << 11 | 1 << 10))
+                {
+                    if (hit.transform.TryGetComponent(out Decoy decoy))
+                    {
+                        DetectedDecoy(enemyToTarget.magnitude, decoy.gameObject);
+                    }
                 }
             }
         }
@@ -164,6 +180,19 @@ public class Enemy : MonoBehaviour
             player.GetComponent<Player>().Died();
         }
 
+    }
+    void DetectedDecoy(float distanceToDecoy, GameObject decoy)
+    {
+        if (distanceToDecoy > killDistance)
+        {
+            SetChaseState(decoy.transform.position);
+        }
+        else
+        {
+            state = MovementStates.Standard;
+            agent.speed = movementSpeed * Game.game.movementSpeedFactor;
+            decoy.GetComponent<Decoy>().DestroyDecoy();
+        }
     }
     public void SetChaseState(Vector3 targetPos)
     {

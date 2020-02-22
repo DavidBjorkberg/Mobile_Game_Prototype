@@ -600,7 +600,7 @@ PrefabInstance:
         type: 3}
       propertyPath: startItems.Array.data[0]
       value: 
-      objectReference: {fileID: 2226728047924859259, guid: 321b27c5fb664c547b6e01d7aa1bcd92,
+      objectReference: {fileID: 7368096138798319151, guid: 9af17cffc9b529346bc25a745e675378,
         type: 3}
     - target: {fileID: -28816782524781199, guid: 9690d07f6eb39c34f9d4adb4f5dc8d81,
         type: 3}
@@ -6549,6 +6549,16 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 1209804541159441629, guid: 7dd8ef98ea67fb245b33c5ee3c4c1163,
         type: 3}
+    - target: {fileID: 430809479, guid: 235fd7ce4a6f23146b8b5b477e242598, type: 3}
+      propertyPath: decoyPrefab
+      value: 
+      objectReference: {fileID: 7033812257411632352, guid: 8b9ca83d7f08897468544a7d5e5f8f66,
+        type: 3}
+    - target: {fileID: 430809479, guid: 235fd7ce4a6f23146b8b5b477e242598, type: 3}
+      propertyPath: vanishPrefab
+      value: 
+      objectReference: {fileID: 8084571960319187077, guid: 9af17cffc9b529346bc25a745e675378,
+        type: 3}
     - target: {fileID: 3087863365198033569, guid: 235fd7ce4a6f23146b8b5b477e242598,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -6734,7 +6744,7 @@ PrefabInstance:
     - target: {fileID: 238707913643001051, guid: d0871114c88b5314aa9efd478973715f,
         type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: -10.989868
+      value: -10.989899
       objectReference: {fileID: 0}
     - target: {fileID: 238707913643001051, guid: d0871114c88b5314aa9efd478973715f,
         type: 3}
