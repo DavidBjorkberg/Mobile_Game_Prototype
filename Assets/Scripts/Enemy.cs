@@ -170,6 +170,8 @@ public class Enemy : MonoBehaviour
     }
     void DetectedPlayer(float distanceToPlayer)
     {
+        if (Game.game.player.isInvisible)
+            return;
         if (distanceToPlayer > killDistance)
         {
             SetChaseState(player.transform.position);

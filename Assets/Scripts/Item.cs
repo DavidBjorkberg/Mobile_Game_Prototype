@@ -7,14 +7,7 @@ public abstract class Item : MonoBehaviour
     public abstract void UseItem(Vector3 pos);
     public bool isStackable = true;
     public bool isInteractable = true;
+    public bool requiresTarget = true;
     public Sprite inventorySprite;
-    void Start()
-    {
-        
-    }
 
-    void Update()
-    {
-        
-    }
 }

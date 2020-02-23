@@ -405,7 +405,7 @@ LineRenderer:
       m_Mode: 0
       m_NumColorKeys: 2
       m_NumAlphaKeys: 2
-    numCornerVertices: 0
+    numCornerVertices: 10
     numCapVertices: 0
     alignment: 0
     textureMode: 1
@@ -580,6 +580,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Parameters.textureMode
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: -7032703047869044361, guid: 9690d07f6eb39c34f9d4adb4f5dc8d81,
+        type: 3}
+      propertyPath: m_Parameters.numCornerVertices
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: -28816782524781199, guid: 9690d07f6eb39c34f9d4adb4f5dc8d81,
         type: 3}
@@ -1066,7 +1071,7 @@ LineRenderer:
       m_Mode: 0
       m_NumColorKeys: 2
       m_NumAlphaKeys: 2
-    numCornerVertices: 0
+    numCornerVertices: 10
     numCapVertices: 0
     alignment: 0
     textureMode: 1
@@ -3798,7 +3803,7 @@ LineRenderer:
       m_Mode: 0
       m_NumColorKeys: 2
       m_NumAlphaKeys: 2
-    numCornerVertices: 0
+    numCornerVertices: 10
     numCapVertices: 0
     alignment: 0
     textureMode: 1
@@ -5343,7 +5348,7 @@ LineRenderer:
       m_Mode: 0
       m_NumColorKeys: 2
       m_NumAlphaKeys: 2
-    numCornerVertices: 0
+    numCornerVertices: 10
     numCapVertices: 0
     alignment: 0
     textureMode: 1
