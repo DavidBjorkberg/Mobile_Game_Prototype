@@ -103,7 +103,7 @@ public class Enemy : MonoBehaviour
                 {
                     agent.destination = lastSeenPlayerPos;
                 }
-                if ((transform.position - lastSeenPlayerPos).magnitude <= 1f)
+                if ((transform.position - lastSeenPlayerPos).magnitude <= 1.5f)
                 {
                     agent.isStopped = true;
                 }
@@ -115,9 +115,7 @@ public class Enemy : MonoBehaviour
                 lastSeenPlayerTimer += Time.deltaTime;
                 if (lastSeenPlayerTimer >= chaseTime)
                 {
-                    agent.isStopped = false;
-                    state = MovementStates.Returning;
-                    agent.destination = GetClosestPointInPath();
+                    SetReturnState();
                 }
 
                 break;
@@ -178,10 +176,9 @@ public class Enemy : MonoBehaviour
         }
         else
         {
-            state = MovementStates.Standard;
+            SetReturnState();
             player.GetComponent<Player>().Died();
         }
-
     }
     void DetectedDecoy(float distanceToDecoy, GameObject decoy)
     {
@@ -191,7 +188,7 @@ public class Enemy : MonoBehaviour
         }
         else
         {
-            state = MovementStates.Standard;
+            Invoke("SetReturnState",1.5f);
             agent.speed = movementSpeed * Game.game.movementSpeedFactor;
             decoy.GetComponent<Decoy>().DestroyDecoy();
         }
@@ -201,6 +198,12 @@ public class Enemy : MonoBehaviour
         state = MovementStates.Chasing;
         lastSeenPlayerTimer = 0;
         lastSeenPlayerPos = targetPos;
+    }
+    void SetReturnState()
+    {
+        agent.isStopped = false;
+        state = MovementStates.Returning;
+        agent.destination = GetClosestPointInPath();
     }
     public void Stun(float stunDuration = 1)
     {
