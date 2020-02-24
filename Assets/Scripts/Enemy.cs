@@ -8,7 +8,6 @@ public class Enemy : MonoBehaviour
     public FieldofView fieldOfView;
     public int movementSpeed;
     public List<GameObject> waypoints;
-    public int nrOfSteps;
     public float killDistance;
     public float chaseTime;
     public bool circulate = true;
@@ -37,7 +36,7 @@ public class Enemy : MonoBehaviour
         fieldOfView.enemy = gameObject;
         player = GameObject.Find("Player");
         agent = GetComponent<NavMeshAgent>();
-        agent.speed = movementSpeed * Game.game.movementSpeedFactor;
+        agent.speed = movementSpeed;
     }
 
     void Update()
@@ -98,7 +97,7 @@ public class Enemy : MonoBehaviour
                 }
                 break;
             case MovementStates.Chasing:
-                agent.speed = chaseSpeed * Game.game.movementSpeedFactor;
+                agent.speed = chaseSpeed;
                 if (agent.destination.x != lastSeenPlayerPos.x && agent.destination.z != lastSeenPlayerPos.z)
                 {
                     agent.destination = lastSeenPlayerPos;
@@ -120,7 +119,7 @@ public class Enemy : MonoBehaviour
 
                 break;
             case MovementStates.Returning:
-                agent.speed = movementSpeed * Game.game.movementSpeedFactor;
+                agent.speed = movementSpeed;
                 if ((transform.position - agent.destination).magnitude <= switchWaypointDistance)
                 {
                     state = MovementStates.Standard;
@@ -189,7 +188,7 @@ public class Enemy : MonoBehaviour
         else
         {
             Invoke("SetReturnState",1.5f);
-            agent.speed = movementSpeed * Game.game.movementSpeedFactor;
+            agent.speed = movementSpeed;
             decoy.GetComponent<Decoy>().DestroyDecoy();
         }
     }

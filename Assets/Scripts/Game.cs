@@ -9,9 +9,6 @@ using UnityEditor;
 public class Game : MonoBehaviour
 {
     public static Game game;
-    public int enemyFOV;
-    public float stepSize;
-    public float movementSpeedFactor;
     public Player player;
     public SoundSource soundSourcePrefab;
     public Item ThrowingKnifePrefab;
@@ -37,13 +34,8 @@ public class Game : MonoBehaviour
         enemyHandler = GameObject.Find("EnemyHandler").GetComponent<EnemyHandler>();
         nrOfAliveEnemies = enemyHandler.enemies.Count;
     }
-    private void Start()
-    {
-
-    }
     void Update()
     {
-       
         if(enemyHandler.IsAllEnemiesDeadInRoom(currentRoom))
         {
             NextRoom();
@@ -70,6 +62,7 @@ public class Game : MonoBehaviour
         }
         else if(currentRoom == 2)
         {
+            player.GetComponent<Inventory>().AddStartItem(ThrowingKnifePrefab, 2);
 
         }
         player.GetComponent<Inventory>().RefreshItems();

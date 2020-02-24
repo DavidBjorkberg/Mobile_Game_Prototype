@@ -364,14 +364,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   fieldOfView: {fileID: 1781295228}
-  movementSpeed: 2
+  movementSpeed: 4
   waypoints:
   - {fileID: 1114868539}
   - {fileID: 1696017271}
   - {fileID: 699741954}
   - {fileID: 1134324662}
   - {fileID: 1447408918}
-  nrOfSteps: 5
   killDistance: 2
   chaseTime: 2
   circulate: 1
@@ -1030,12 +1029,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   fieldOfView: {fileID: 1415462055}
-  movementSpeed: 2
+  movementSpeed: 4
   waypoints:
   - {fileID: 1507364877}
   - {fileID: 56300179}
   - {fileID: 448244030}
-  nrOfSteps: 5
   killDistance: 2
   chaseTime: 2
   circulate: 0
@@ -3283,12 +3281,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   fieldOfView: {fileID: 1568887692}
-  movementSpeed: 2
+  movementSpeed: 4
   waypoints:
   - {fileID: 1663541508}
   - {fileID: 1971872745}
   - {fileID: 1752657707}
-  nrOfSteps: 5
   killDistance: 2
   chaseTime: 2
   circulate: 1
@@ -4682,12 +4679,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   fieldOfView: {fileID: 468247776}
-  movementSpeed: 2
+  movementSpeed: 4
   waypoints:
   - {fileID: 1367751591}
   - {fileID: 1805916312}
   - {fileID: 1497088168}
-  nrOfSteps: 5
   killDistance: 2
   chaseTime: 2
   circulate: 1

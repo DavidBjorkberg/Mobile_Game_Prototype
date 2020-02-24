@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class Decoy : Item
 {
+    public int placementRange;
     public override void UseItem(Vector3 targetPos)
     {
         transform.position = targetPos;

@@ -208,7 +208,7 @@ MonoBehaviour:
   isStackable: 1
   isInteractable: 1
   requiresTarget: 0
-  inventorySprite: {fileID: 21300000, guid: ab85bf71eb67e1140a0aebd64e4084c8, type: 3}
+  inventorySprite: {fileID: 21300000, guid: caa380a331c38384aa35603e6b9d1887, type: 3}
   timeBar: {fileID: 8990188220301222677}
   duration: 1.5
   invisColour: {r: 0.6981132, g: 0, b: 0.48011994, a: 0}
