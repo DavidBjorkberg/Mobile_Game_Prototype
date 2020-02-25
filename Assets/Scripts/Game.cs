@@ -14,7 +14,9 @@ public class Game : MonoBehaviour
     public Item ThrowingKnifePrefab;
     public Item RockPrefab;
     public List<GameObject> startPoints = new List<GameObject>();
+    public List<Texture> playerTextures = new List<Texture>();
     public List<Camera> cameras = new List<Camera>();
+    public GameObject endScreenGO;
     RectTransform inventoryUIRectTransform;
     internal List<Decoy> activeDecoys = new List<Decoy>();
     internal int nrOfAliveEnemies;
@@ -22,6 +24,7 @@ public class Game : MonoBehaviour
     internal bool usingItem;
     internal List<Item> activeItems = new List<Item>();
     private int currentRoom = 0;
+    private float totalTime;
     private void Awake()
     {
 
@@ -36,7 +39,7 @@ public class Game : MonoBehaviour
     }
     void Update()
     {
-        if(enemyHandler.IsAllEnemiesDeadInRoom(currentRoom))
+        if(enemyHandler.IsAllEnemiesDeadInRoom(currentRoom) && currentRoom != 3)
         {
             NextRoom();
         }
@@ -46,6 +49,7 @@ public class Game : MonoBehaviour
         }
         else
         {
+            totalTime += Time.deltaTime;
             Time.timeScale = 1;
         }
     }
@@ -58,15 +62,22 @@ public class Game : MonoBehaviour
         player.agent.ResetPath();
         if(currentRoom == 1)
         {
-            player.GetComponent<Inventory>().AddStartItem(RockPrefab, 2);   
+           // player.GetComponent<Inventory>().AddStartItem(RockPrefab, 2);   
         }
         else if(currentRoom == 2)
         {
-            player.GetComponent<Inventory>().AddStartItem(ThrowingKnifePrefab, 2);
+           // player.GetComponent<Inventory>().AddStartItem(ThrowingKnifePrefab, 2);
 
         }
+        player.GetComponent<MeshRenderer>().material.SetTexture("_MainTex", playerTextures[currentRoom]);   
         player.GetComponent<Inventory>().RefreshItems();
-
+        if(currentRoom == 3)
+        {
+            player.GetComponent<Inventory>().inventoryUI.gameObject.SetActive(false);
+            endScreenGO.SetActive(true);
+            endScreenGO.transform.GetChild(0).GetComponent<Text>().text = "Your time was: " + totalTime;
+        }
+        
     }
     public void AddItem(Item item)
     {
@@ -84,7 +95,7 @@ public class Game : MonoBehaviour
     }
     public bool IsPaused()
     {
-        return !player.GetComponent<Player>().agent.hasPath && activeItems.Count <= 0 ;
+        return !player.GetComponent<Player>().agent.hasPath && activeItems.Count <= 0 || usingItem;
     }
     public Vector3 GetMousePosInWorld()
     {
@@ -98,5 +109,9 @@ public class Game : MonoBehaviour
     {
         SoundSource soundSourceGO = Instantiate(soundSourcePrefab, origin, Quaternion.identity);
         soundSourceGO.range = range;
+    }
+    public void Restart()
+    {
+        SceneManager.LoadScene(0);
     }
 }
