@@ -1,6 +1,8 @@
 ﻿using UnityEngine;
 using UnityEngine.AI;
 using UnityEngine.SceneManagement;
+using System.Collections;
+using System.Collections.Generic;
 public class Player : MonoBehaviour
 {
     public int movementSpeed;
@@ -10,6 +12,8 @@ public class Player : MonoBehaviour
     internal bool isInvisible;
     LineRenderer lr;
     public LineRenderer itemLr;
+    internal bool detected;
+    internal List<Enemy> detectedEnemies = new List<Enemy>();
     void Start()
     {
         lr = GetComponent<LineRenderer>();
@@ -29,6 +33,38 @@ public class Player : MonoBehaviour
                     agent.destination = Game.game.GetMousePosInWorld();
                 }
             }
+        }
+        if (!agent.hasPath)
+        {
+           // StartCoroutine(Game.game.SetPaused());
+        }
+        else
+        {
+           // StartCoroutine(Game.game.SetRegularSpeed());
+        }
+    }
+    public void AddDetectedEnemy(Enemy enemy)
+    {
+        if (!detectedEnemies.Contains(enemy))
+        {
+            detectedEnemies.Add(enemy);
+            StopCoroutine(Game.game.SetDetectedSlowmotion());
+            Game.game.setDetectedSlowMotionRunning = false;
+            StartCoroutine(Game.game.SetDetectedSlowmotion());
+        }
+    }
+    public void RemoveDetectedEnemy(Enemy enemy)
+    {
+        if (detectedEnemies.Contains(enemy))
+        {
+            detectedEnemies.Remove(enemy);
+        }
+    }
+    public void SelectPathWhileUsingItem()
+    {
+        if (!Game.game.IsMouseOnInventory())
+        {
+            agent.destination = Game.game.GetMousePosInWorld();
         }
     }
     public void Died()

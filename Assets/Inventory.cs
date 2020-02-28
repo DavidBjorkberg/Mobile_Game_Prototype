@@ -22,6 +22,21 @@ public class Inventory : MonoBehaviour
 
     void Update()
     {
+        bool isAnySlotSelected = false;
+        for (int i = 0; i < nrOfItemSlots; i++)
+        {
+            if(itemSlots[i].isSelected)
+            {
+                isAnySlotSelected = true;
+                StartCoroutine(Game.game.SetItemSlowmotion());
+                print("Itemslot" + i + " is selected");
+                break;
+            }
+        }
+        if(!isAnySlotSelected)
+        {
+            Time.timeScale = 1;
+        }
     }
     public void RefreshItems()
     {
@@ -47,7 +62,7 @@ public class Inventory : MonoBehaviour
         if (newItem.isStackable)
         {
             //Check if an item of this type already is in inventory
-            for (int i = 0; i < nrOfUsedSlots; i++)
+            for (int i = 0; i < nrOfItemSlots; i++)
             {
                 if (itemSlots[i].heldItem == newItem)
                 {
@@ -73,10 +88,11 @@ public class Inventory : MonoBehaviour
     }
     public void RemoveItem(Item itemToRemove)
     {
-        for (int i = 0; i < nrOfUsedSlots; i++)
+        for (int i = 0; i < nrOfItemSlots; i++)
         {
             if (itemSlots[i].heldItem == itemToRemove)
             {
+                DeselectItem(i);
                 if (itemSlots[i].heldItem.isStackable)
                 {
                     itemSlots[i].nrOfCharges--;
@@ -101,14 +117,42 @@ public class Inventory : MonoBehaviour
     {
         itemSlots[index].heldItem = null;
         itemSlots[index].nrOfCharges = 0;
-        inventoryUI.transform.GetChild(index + 1).gameObject.SetActive(false);
+        itemSlots[index].isSelected = false;
+        GetInventorySlotGO(index).SetActive(false);
         nrOfUsedSlots--;
 
     }
     public void OnInventoryButtonClick(int slotNumber)
     {
+        for (int i = 0; i < nrOfItemSlots; i++)
+        {
+            if(i != slotNumber && itemSlots[i].heldItem != null)
+            {
+                DeselectItem(i);
+            }
+        }
+        if (!itemSlots[slotNumber].isSelected)
+        {   
+            SelectItem(slotNumber);
+        }
+        else
+        {
+            DeselectItem(slotNumber);
+        }
+    }
+    void SelectItem(int slotNumber)
+    {
         Game.game.GetComponent<ItemHandler>().SelectItem(itemSlots[slotNumber].heldItem);
+        GetInventorySlotGO(slotNumber).GetComponent<Button>().image.sprite = itemSlots[slotNumber].heldItem.selectedSprite;
+  
+        itemSlots[slotNumber].isSelected = true;
+    }
+    void DeselectItem(int slotNumber)
+    {
+        Game.game.GetComponent<ItemHandler>().DeselectItem();
+        GetInventorySlotGO(slotNumber).GetComponent<Button>().image.sprite = itemSlots[slotNumber].heldItem.inventorySprite;
 
+        itemSlots[slotNumber].isSelected = false;
     }
     public bool SearchInventory(Item item)
     {

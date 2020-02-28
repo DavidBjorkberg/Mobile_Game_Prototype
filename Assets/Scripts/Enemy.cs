@@ -2,6 +2,8 @@
 using UnityEditor;
 using UnityEngine.AI;
 using UnityEngine;
+using System.Collections;
+
 [RequireComponent(typeof(NavMeshAgent))]
 public class Enemy : MonoBehaviour
 {
@@ -21,6 +23,8 @@ public class Enemy : MonoBehaviour
     private float chaseSpeed;
     private bool isStunned;
     private float stunTimer;
+    private float detectedDecoyRangeDivider = 2;
+    private bool isTurning;
     private enum MovementStates
     {
         Standard, Chasing, Returning
@@ -147,6 +151,10 @@ public class Enemy : MonoBehaviour
                 {
                     DetectedPlayer(enemyToTarget.magnitude);
                 }
+                else
+                {
+                    Game.game.player.RemoveDetectedEnemy(this);
+                }
             }
         }
         for (int i = 0; i < Game.game.activeDecoys.Count; i++)
@@ -169,6 +177,8 @@ public class Enemy : MonoBehaviour
     {
         if (Game.game.player.isInvisible)
             return;
+
+       // Game.game.player.AddDetectedEnemy(this);
         if (distanceToPlayer > killDistance)
         {
             SetChaseState(player.transform.position);
@@ -187,7 +197,9 @@ public class Enemy : MonoBehaviour
         }
         else
         {
-            Invoke("SetReturnState",1.5f);
+            fieldOfView.viewDistance /= detectedDecoyRangeDivider;
+            Invoke("SetReturnState", 1.5f);
+            Invoke("ResetFOVDistance", 1.5f);
             agent.speed = movementSpeed;
             decoy.GetComponent<Decoy>().DestroyDecoy();
         }
@@ -198,8 +210,13 @@ public class Enemy : MonoBehaviour
         lastSeenPlayerTimer = 0;
         lastSeenPlayerPos = targetPos;
     }
+    void ResetFOVDistance()
+    {
+        fieldOfView.viewDistance *= detectedDecoyRangeDivider;
+    }
     void SetReturnState()
     {
+
         agent.isStopped = false;
         state = MovementStates.Returning;
         agent.destination = GetClosestPointInPath();

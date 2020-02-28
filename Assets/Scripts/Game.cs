@@ -11,20 +11,28 @@ public class Game : MonoBehaviour
     public static Game game;
     public Player player;
     public SoundSource soundSourcePrefab;
-    public Item ThrowingKnifePrefab;
-    public Item RockPrefab;
+    public Item throwingKnifePrefab;
+    public Item decoyPrefab;
+    public Item vanishPrefab;
     public List<GameObject> startPoints = new List<GameObject>();
     public List<Texture> playerTextures = new List<Texture>();
     public List<Camera> cameras = new List<Camera>();
     public GameObject endScreenGO;
-    RectTransform inventoryUIRectTransform;
+    internal enum SlowMotionState { Slowmotion, paused, regular }
+    internal SlowMotionState slowMotionState;
     internal List<Decoy> activeDecoys = new List<Decoy>();
     internal int nrOfAliveEnemies;
     internal EnemyHandler enemyHandler;
     internal bool usingItem;
     internal List<Item> activeItems = new List<Item>();
+    private RectTransform inventoryUIRectTransform;
     private int currentRoom = 0;
     private float totalTime;
+    internal bool setDetectedSlowMotionRunning;
+    internal bool setItemSlowMotionRunning;
+    private bool setPausedRunning;
+    private bool setRegularSpeedRunning;
+    private float slowmotionStateLerptime = 0.2f;
     private void Awake()
     {
 
@@ -36,21 +44,13 @@ public class Game : MonoBehaviour
 
         enemyHandler = GameObject.Find("EnemyHandler").GetComponent<EnemyHandler>();
         nrOfAliveEnemies = enemyHandler.enemies.Count;
+        slowMotionState = SlowMotionState.regular;
     }
     void Update()
     {
-        if(enemyHandler.IsAllEnemiesDeadInRoom(currentRoom) && currentRoom != 3)
+        if (enemyHandler.IsAllEnemiesDeadInRoom(currentRoom) && currentRoom != 3)
         {
             NextRoom();
-        }
-        if (IsPaused())
-        {
-            Time.timeScale = 0.00001f;
-        }
-        else
-        {
-            totalTime += Time.deltaTime;
-            Time.timeScale = 1;
         }
     }
     public void NextRoom()
@@ -60,24 +60,111 @@ public class Game : MonoBehaviour
         cameras[currentRoom].gameObject.SetActive(true);
         player.agent.Warp(startPoints[currentRoom].transform.position);
         player.agent.ResetPath();
-        if(currentRoom == 1)
+        if (currentRoom == 1)
         {
-           // player.GetComponent<Inventory>().AddStartItem(RockPrefab, 2);   
+            player.GetComponent<Inventory>().AddStartItem(decoyPrefab, 1);
         }
-        else if(currentRoom == 2)
+        else if (currentRoom == 2)
         {
-           // player.GetComponent<Inventory>().AddStartItem(ThrowingKnifePrefab, 2);
+            player.GetComponent<Inventory>().AddStartItem(vanishPrefab, 1);
 
         }
-        player.GetComponent<MeshRenderer>().material.SetTexture("_MainTex", playerTextures[currentRoom]);   
+        player.GetComponent<MeshRenderer>().material.SetTexture("_MainTex", playerTextures[currentRoom]);
         player.GetComponent<Inventory>().RefreshItems();
-        if(currentRoom == 3)
+        if (currentRoom == 3)
         {
             player.GetComponent<Inventory>().inventoryUI.gameObject.SetActive(false);
             endScreenGO.SetActive(true);
             endScreenGO.transform.GetChild(0).GetComponent<Text>().text = "Your time was: " + totalTime;
         }
-        
+
+    }
+    public IEnumerator SetDetectedSlowmotion()
+    {
+        StopCoroutine("SetRegularSpeed");
+        setRegularSpeedRunning = false;
+        if (!setDetectedSlowMotionRunning && !setItemSlowMotionRunning && !setPausedRunning)
+        {
+            setDetectedSlowMotionRunning = true;
+            float elapsedTime = 0;
+            float startTimeScale = Time.timeScale;
+            while (elapsedTime < slowmotionStateLerptime)
+            {
+                elapsedTime += Time.unscaledDeltaTime;
+                Time.timeScale = Mathf.Lerp(startTimeScale, 0.2f, elapsedTime / slowmotionStateLerptime);
+                yield return new WaitForEndOfFrame();
+            }
+            yield return new WaitForSecondsRealtime(0.5f);
+
+            StartCoroutine(SetRegularSpeed(true));
+            setDetectedSlowMotionRunning = false;
+        }
+        yield return null;
+    }
+    public IEnumerator SetItemSlowmotion()
+    {
+        StopCoroutine("SetRegularSpeed");
+        StopCoroutine("SetDetectedSlowMotion");
+        setDetectedSlowMotionRunning = false;
+        setRegularSpeedRunning = false;
+        if (!setItemSlowMotionRunning && !setPausedRunning)
+        {
+            setItemSlowMotionRunning = true;
+            float elapsedTime = 0;
+            float startTimeScale = Time.timeScale;
+            while (elapsedTime < slowmotionStateLerptime)
+            {
+                elapsedTime += Time.unscaledDeltaTime;
+                Time.timeScale = Mathf.Lerp(startTimeScale, 0.2f, elapsedTime / slowmotionStateLerptime);
+                yield return new WaitForEndOfFrame();
+            }
+            setItemSlowMotionRunning = false;
+        }
+        yield return null;
+    }
+    public IEnumerator SetPaused()
+    {
+        StopCoroutine("SetDetectedSlowMotion");
+        StopCoroutine("SetRegularSpeed");
+        StopCoroutine("SetItemSlowmotion");
+        setItemSlowMotionRunning = false;
+        setDetectedSlowMotionRunning = false;
+        setRegularSpeedRunning = false;
+        if (!setPausedRunning)
+        {
+
+            setPausedRunning = true;
+
+            float elapsedTime = 0;
+            float startTimeScale = Time.timeScale;
+            while (elapsedTime < slowmotionStateLerptime)
+            {
+                elapsedTime += Time.unscaledDeltaTime;
+                Time.timeScale = Mathf.Lerp(startTimeScale, 0.00001f, elapsedTime / slowmotionStateLerptime);
+                yield return new WaitForEndOfFrame();
+            }
+            setPausedRunning = false;
+        }
+        yield return null;
+    }
+    public IEnumerator SetRegularSpeed(bool forceRun = false)
+    {
+        if (!setRegularSpeedRunning && !setPausedRunning && !setDetectedSlowMotionRunning || forceRun)
+        {
+            setRegularSpeedRunning = true;
+            float elapsedTime = 0;
+            float startTimeScale = Time.timeScale;
+            Time.timeScale = 1;
+            //while (elapsedTime < slowmotionStateLerptime)
+            //{
+            //    elapsedTime += Time.unscaledDeltaTime * 5;
+            //    Time.timeScale = Mathf.Lerp(startTimeScale, 1f, elapsedTime / slowmotionStateLerptime);
+            //    yield return new WaitForEndOfFrame();
+            //}
+            setRegularSpeedRunning = false;
+
+        }
+        yield return null;
     }
     public void AddItem(Item item)
     {
@@ -92,10 +179,6 @@ public class Game : MonoBehaviour
         Vector2 mouseVector2 = inventoryUIRectTransform.InverseTransformPoint(Input.mousePosition);
         Rect inventoryRect = inventoryUIRectTransform.rect;
         return inventoryRect.Contains(mouseVector2);
-    }
-    public bool IsPaused()
-    {
-        return !player.GetComponent<Player>().agent.hasPath && activeItems.Count <= 0 || usingItem;
     }
     public Vector3 GetMousePosInWorld()
     {

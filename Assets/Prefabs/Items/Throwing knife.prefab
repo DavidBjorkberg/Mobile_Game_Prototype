@@ -47,8 +47,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   isStackable: 1
   isInteractable: 1
+  requiresTarget: 1
   inventorySprite: {fileID: 21300000, guid: ed9a3e4cc842e9349816c48bdbd875e8, type: 3}
-  speed: 20
+  selectedSprite: {fileID: 21300000, guid: b8f62d8ed0049de419ba54b72ca84df4, type: 3}
+  speed: 40
 --- !u!135 &-6507332707274661721
 SphereCollider:
   m_ObjectHideFlags: 0

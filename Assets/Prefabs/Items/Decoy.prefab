@@ -60,7 +60,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 10303, guid: 0000000000000000f000000000000000, type: 0}
+  - {fileID: 2100000, guid: dcc930a5175fa0849b7f54e2daea3224, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -111,6 +111,8 @@ MonoBehaviour:
   isInteractable: 1
   requiresTarget: 1
   inventorySprite: {fileID: 21300000, guid: 1b182f05f76896748a54e37d73900af1, type: 3}
+  selectedSprite: {fileID: 21300000, guid: 3789af26f731d9a4ebc23dc37e2cb488, type: 3}
+  placementRange: 0
 --- !u!54 &36720467
 Rigidbody:
   m_ObjectHideFlags: 0

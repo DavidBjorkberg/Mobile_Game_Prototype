@@ -30,7 +30,10 @@ public class ItemHandler : MonoBehaviour
                 {
                     createdItem = Instantiate(decoyPrefab, Game.game.player.transform.position, Quaternion.identity);
                 }
-
+                else if (currentItem is Vanish)
+                {
+                    createdItem = Instantiate(vanishPrefab, Game.game.player.transform.position, Quaternion.identity);
+                }
                 else
                 {
                     createdItem = null;
@@ -48,16 +51,18 @@ public class ItemHandler : MonoBehaviour
     }
     public void SelectItem(Item item)
     {
+        Game.game.player.agent.ResetPath();
         if (item.requiresTarget)
         {
             choosingTarget = true;
             currentItem = item;
             Game.game.usingItem = true;
+            
         }
         else
         {
             GameObject createdItem;
-            if (item is Vanish)
+            if(item is Vanish)
             {
                 createdItem = Instantiate(vanishPrefab, Game.game.player.transform.position, Quaternion.identity);
             }
@@ -68,11 +73,11 @@ public class ItemHandler : MonoBehaviour
             Game.game.player.GetComponent<Inventory>().RemoveItem(item);
             createdItem.GetComponent<Item>().UseItem(Vector3.zero);
         }
+        
     }
     public void DeselectItem()
     {
         choosingTarget = false;
         currentItem = null;
-        Game.game.usingItem = false;
     }
 }

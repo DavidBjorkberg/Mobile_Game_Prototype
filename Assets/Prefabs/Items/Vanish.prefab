@@ -209,9 +209,11 @@ MonoBehaviour:
   isInteractable: 1
   requiresTarget: 0
   inventorySprite: {fileID: 21300000, guid: caa380a331c38384aa35603e6b9d1887, type: 3}
+  selectedSprite: {fileID: 21300000, guid: 71ef7410df8da4e4488b96c989898fd6, type: 3}
   timeBar: {fileID: 8990188220301222677}
   duration: 1.5
-  invisColour: {r: 0.6981132, g: 0, b: 0.48011994, a: 0}
+  speedMultiplier: 2
+  invisMaterial: {fileID: 2100000, guid: 585e52588e6fbee42b5c0877b9f10988, type: 2}
 --- !u!1 &8990188220301222677
 GameObject:
   m_ObjectHideFlags: 0
