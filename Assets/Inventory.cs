@@ -142,10 +142,10 @@ public class Inventory : MonoBehaviour
     }
     void SelectItem(int slotNumber)
     {
-        Game.game.GetComponent<ItemHandler>().SelectItem(itemSlots[slotNumber].heldItem);
         GetInventorySlotGO(slotNumber).GetComponent<Button>().image.sprite = itemSlots[slotNumber].heldItem.selectedSprite;
   
         itemSlots[slotNumber].isSelected = true;
+        Game.game.GetComponent<ItemHandler>().SelectItem(itemSlots[slotNumber].heldItem);
     }
     void DeselectItem(int slotNumber)
     {

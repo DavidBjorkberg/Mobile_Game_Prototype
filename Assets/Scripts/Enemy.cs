@@ -141,11 +141,29 @@ public class Enemy : MonoBehaviour
     void CheckFoV()
     {
         //Player
-        Vector3 enemyToTarget = player.transform.position - transform.position;
-        float angle = Vector3.Angle(enemyToTarget.normalized, transform.forward) * 2;
+        Vector3 enemyToTarget;
+        float angle;
+        for (int i = 0; i < Game.game.activeDecoys.Count; i++)
+        {
+            enemyToTarget = Game.game.activeDecoys[i].transform.position - transform.position;
+            angle = Vector3.Angle(enemyToTarget.normalized, transform.forward) * 2;
+            if (angle <= fieldOfView.fov)
+            {
+                if (Physics.Raycast(transform.position, enemyToTarget.normalized, out RaycastHit hit, fieldOfView.viewDistance, 1 << 11 | 1 << 10 | 1 << 9))
+                {
+                    if (hit.transform.TryGetComponent(out Decoy decoy))
+                    {
+                        DetectedDecoy(enemyToTarget.magnitude, decoy.gameObject);
+                        return;
+                    }
+                }
+            }
+        }
+        enemyToTarget = player.transform.position - transform.position;
+        angle = Vector3.Angle(enemyToTarget.normalized, transform.forward) * 2;
         if (angle <= fieldOfView.fov)
         {
-            if (Physics.Raycast(transform.position, enemyToTarget.normalized, out RaycastHit hit, fieldOfView.viewDistance, 1 << 8 | 1 << 10))
+            if (Physics.Raycast(transform.position, enemyToTarget.normalized, out RaycastHit hit, fieldOfView.viewDistance, 1 << 8 | 1 << 10 | 1 <<9))
             {
                 if (hit.transform.TryGetComponent(out Player player))
                 {
@@ -157,28 +175,13 @@ public class Enemy : MonoBehaviour
                 }
             }
         }
-        for (int i = 0; i < Game.game.activeDecoys.Count; i++)
-        {
-            enemyToTarget = Game.game.activeDecoys[i].transform.position - transform.position;
-            angle = Vector3.Angle(enemyToTarget.normalized, transform.forward) * 2;
-            if (angle <= fieldOfView.fov)
-            {
-                if (Physics.Raycast(transform.position, enemyToTarget.normalized, out RaycastHit hit, fieldOfView.viewDistance, 1 << 11 | 1 << 10))
-                {
-                    if (hit.transform.TryGetComponent(out Decoy decoy))
-                    {
-                        DetectedDecoy(enemyToTarget.magnitude, decoy.gameObject);
-                    }
-                }
-            }
-        }
     }
     void DetectedPlayer(float distanceToPlayer)
     {
         if (Game.game.player.isInvisible)
             return;
 
-       // Game.game.player.AddDetectedEnemy(this);
+        // Game.game.player.AddDetectedEnemy(this);
         if (distanceToPlayer > killDistance)
         {
             SetChaseState(player.transform.position);
@@ -201,7 +204,6 @@ public class Enemy : MonoBehaviour
             Invoke("SetReturnState", 1.5f);
             Invoke("ResetFOVDistance", 1.5f);
             agent.speed = movementSpeed;
-            decoy.GetComponent<Decoy>().DestroyDecoy();
         }
     }
     public void SetChaseState(Vector3 targetPos)

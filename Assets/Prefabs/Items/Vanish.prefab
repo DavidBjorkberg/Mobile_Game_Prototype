@@ -207,7 +207,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   isStackable: 1
   isInteractable: 1
-  requiresTarget: 0
+  requiresTarget: 1
   inventorySprite: {fileID: 21300000, guid: caa380a331c38384aa35603e6b9d1887, type: 3}
   selectedSprite: {fileID: 21300000, guid: 71ef7410df8da4e4488b96c989898fd6, type: 3}
   timeBar: {fileID: 8990188220301222677}
