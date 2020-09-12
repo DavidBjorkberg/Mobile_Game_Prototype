@@ -14,7 +14,11 @@ public class Player : MonoBehaviour
     public LineRenderer itemLr;
     internal bool detected;
     internal List<Enemy> detectedEnemies = new List<Enemy>();
+<<<<<<< HEAD
     public Joystick joyStick;
+=======
+    private GameObject enemyToFollow;
+>>>>>>> b71d8818326c6b402130da709bc58356910b0b46
     void Start()
     {
         lr = GetComponent<LineRenderer>();
@@ -25,16 +29,31 @@ public class Player : MonoBehaviour
     void Update()
     {
         InitializeRound();
+        if (enemyToFollow != null)
+        {
+            agent.destination = enemyToFollow.transform.position;
+        }
         if (Input.GetMouseButton(0))
         {
             if (!Game.game.IsMouseOnInventory())
             {
                 if (!Game.game.usingItem)
                 {
-                    agent.destination = Game.game.GetMousePosInWorld();
+                    Collider[] hits = Physics.OverlapSphere(Game.game.GetMousePosInWorld(), 1, 1 << 9);
+                    if (hits.Length > 0)
+                    {
+                        enemyToFollow = hits[0].gameObject;
+                        agent.destination = enemyToFollow.transform.position;
+                    }
+                    else
+                    {
+                        agent.destination = Game.game.GetMousePosInWorld();
+                        enemyToFollow = null;
+                    }
                 }
             }
         }
+<<<<<<< HEAD
         //if (joyStick.Horizontal != 0 || joyStick.Vertical != 0)
         //{
         //    Vector3 direction = new Vector3(joyStick.Horizontal, 0, joyStick.Vertical);
@@ -48,6 +67,8 @@ public class Player : MonoBehaviour
         {
             // StartCoroutine(Game.game.SetRegularSpeed());
         }
+=======
+>>>>>>> b71d8818326c6b402130da709bc58356910b0b46
     }
     public void AddDetectedEnemy(Enemy enemy)
     {
