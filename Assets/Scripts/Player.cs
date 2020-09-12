@@ -14,6 +14,7 @@ public class Player : MonoBehaviour
     public LineRenderer itemLr;
     internal bool detected;
     internal List<Enemy> detectedEnemies = new List<Enemy>();
+    public Joystick joyStick;
     void Start()
     {
         lr = GetComponent<LineRenderer>();
@@ -34,13 +35,18 @@ public class Player : MonoBehaviour
                 }
             }
         }
+        //if (joyStick.Horizontal != 0 || joyStick.Vertical != 0)
+        //{
+        //    Vector3 direction = new Vector3(joyStick.Horizontal, 0, joyStick.Vertical);
+        //    agent.destination = transform.position + direction;
+        //}
         if (!agent.hasPath)
         {
-           // StartCoroutine(Game.game.SetPaused());
+            // StartCoroutine(Game.game.SetPaused());
         }
         else
         {
-           // StartCoroutine(Game.game.SetRegularSpeed());
+            // StartCoroutine(Game.game.SetRegularSpeed());
         }
     }
     public void AddDetectedEnemy(Enemy enemy)

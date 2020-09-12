@@ -29,7 +29,6 @@ public class Inventory : MonoBehaviour
             {
                 isAnySlotSelected = true;
                 StartCoroutine(Game.game.SetItemSlowmotion());
-                print("Itemslot" + i + " is selected");
                 break;
             }
         }
