@@ -13,12 +13,7 @@ public class Player : MonoBehaviour
     LineRenderer lr;
     public LineRenderer itemLr;
     internal bool detected;
-    internal List<Enemy> detectedEnemies = new List<Enemy>();
-<<<<<<< HEAD
-    public Joystick joyStick;
-=======
     private GameObject enemyToFollow;
->>>>>>> b71d8818326c6b402130da709bc58356910b0b46
     void Start()
     {
         lr = GetComponent<LineRenderer>();
@@ -53,40 +48,8 @@ public class Player : MonoBehaviour
                 }
             }
         }
-<<<<<<< HEAD
-        //if (joyStick.Horizontal != 0 || joyStick.Vertical != 0)
-        //{
-        //    Vector3 direction = new Vector3(joyStick.Horizontal, 0, joyStick.Vertical);
-        //    agent.destination = transform.position + direction;
-        //}
-        if (!agent.hasPath)
-        {
-            // StartCoroutine(Game.game.SetPaused());
-        }
-        else
-        {
-            // StartCoroutine(Game.game.SetRegularSpeed());
-        }
-=======
->>>>>>> b71d8818326c6b402130da709bc58356910b0b46
     }
-    public void AddDetectedEnemy(Enemy enemy)
-    {
-        if (!detectedEnemies.Contains(enemy))
-        {
-            detectedEnemies.Add(enemy);
-            StopCoroutine(Game.game.SetDetectedSlowmotion());
-            Game.game.setDetectedSlowMotionRunning = false;
-            StartCoroutine(Game.game.SetDetectedSlowmotion());
-        }
-    }
-    public void RemoveDetectedEnemy(Enemy enemy)
-    {
-        if (detectedEnemies.Contains(enemy))
-        {
-            detectedEnemies.Remove(enemy);
-        }
-    }
+
     public void SelectPathWhileUsingItem()
     {
         if (!Game.game.IsMouseOnInventory())

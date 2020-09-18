@@ -25,7 +25,6 @@ public class ThrowingKnife : Item
         if (isActive)
         {
             transform.position += speed * direction * Time.deltaTime;
-          
         }
     }
     private void OnTriggerEnter(Collider other)

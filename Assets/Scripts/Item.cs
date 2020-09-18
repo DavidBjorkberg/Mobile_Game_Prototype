@@ -10,5 +10,4 @@ public abstract class Item : MonoBehaviour
     public bool requiresTarget = true;
     public Sprite inventorySprite;
     public Sprite selectedSprite;
-
 }

@@ -31,7 +31,6 @@ public class Game : MonoBehaviour
     internal bool setDetectedSlowMotionRunning;
     internal bool setItemSlowMotionRunning;
     private bool setPausedRunning;
-    private bool setRegularSpeedRunning;
     private float slowmotionStateLerptime = 0.2f;
     private void Awake()
     {
@@ -70,19 +69,17 @@ public class Game : MonoBehaviour
 
         }
         player.GetComponent<MeshRenderer>().material.SetTexture("_MainTex", playerTextures[currentRoom]);
-        player.GetComponent<Inventory>().RefreshItems();
+        player.GetComponent<Inventory>().ResetItems();
         if (currentRoom == 3)
         {
             player.GetComponent<Inventory>().inventoryUI.gameObject.SetActive(false);
             endScreenGO.SetActive(true);
             endScreenGO.transform.GetChild(0).GetComponent<Text>().text = "Your time was: " + totalTime;
         }
-
     }
     public IEnumerator SetDetectedSlowmotion()
     {
         StopCoroutine("SetRegularSpeed");
-        setRegularSpeedRunning = false;
         if (!setDetectedSlowMotionRunning && !setItemSlowMotionRunning && !setPausedRunning)
         {
             setDetectedSlowMotionRunning = true;
@@ -106,7 +103,6 @@ public class Game : MonoBehaviour
         StopCoroutine("SetRegularSpeed");
         StopCoroutine("SetDetectedSlowMotion");
         setDetectedSlowMotionRunning = false;
-        setRegularSpeedRunning = false;
         if (!setItemSlowMotionRunning && !setPausedRunning)
         {
             setItemSlowMotionRunning = true;
@@ -129,7 +125,6 @@ public class Game : MonoBehaviour
         StopCoroutine("SetItemSlowmotion");
         setItemSlowMotionRunning = false;
         setDetectedSlowMotionRunning = false;
-        setRegularSpeedRunning = false;
         if (!setPausedRunning)
         {
 
@@ -149,20 +144,9 @@ public class Game : MonoBehaviour
     }
     public IEnumerator SetRegularSpeed(bool forceRun = false)
     {
-        if (!setRegularSpeedRunning && !setPausedRunning && !setDetectedSlowMotionRunning || forceRun)
+        if (!setPausedRunning && !setDetectedSlowMotionRunning || forceRun)
         {
-            setRegularSpeedRunning = true;
-            float elapsedTime = 0;
-            float startTimeScale = Time.timeScale;
             Time.timeScale = 1;
-            //while (elapsedTime < slowmotionStateLerptime)
-            //{
-            //    elapsedTime += Time.unscaledDeltaTime * 5;
-            //    Time.timeScale = Mathf.Lerp(startTimeScale, 1f, elapsedTime / slowmotionStateLerptime);
-            //    yield return new WaitForEndOfFrame();
-            //}
-            setRegularSpeedRunning = false;
-
         }
         yield return null;
     }

@@ -24,7 +24,6 @@ public class Enemy : MonoBehaviour
     private bool isStunned;
     private float stunTimer;
     private float detectedDecoyRangeDivider = 2;
-    private bool isTurning;
     private enum MovementStates
     {
         Standard, Chasing, Returning
@@ -138,50 +137,59 @@ public class Enemy : MonoBehaviour
     {
         Game.game.enemyHandler.KillEnemy(this);
     }
+    /// <summary>
+    /// Checks FOV first for decoys, then for the player
+    /// </summary>
     void CheckFoV()
     {
-        //Player
-        Vector3 enemyToTarget;
-        float angle;
+        GameObject hitGO;
+        LayerMask layersToHit;
+        float enemyToTargetLength;
         for (int i = 0; i < Game.game.activeDecoys.Count; i++)
         {
-            enemyToTarget = Game.game.activeDecoys[i].transform.position - transform.position;
-            angle = Vector3.Angle(enemyToTarget.normalized, transform.forward) * 2;
-            if (angle <= fieldOfView.fov)
+            layersToHit = 1 << 9;
+            layersToHit += 1 << 10;
+            layersToHit += 1 << 11;
+            hitGO = CheckFOVForTarget(Game.game.activeDecoys[i].transform.position, layersToHit);
+            enemyToTargetLength = (Game.game.activeDecoys[i].transform.position - transform.position).magnitude;
+            if (hitGO != null && hitGO.TryGetComponent(out Decoy decoy))
             {
-                if (Physics.Raycast(transform.position, enemyToTarget.normalized, out RaycastHit hit, fieldOfView.viewDistance, 1 << 11 | 1 << 10 | 1 << 9))
-                {
-                    if (hit.transform.TryGetComponent(out Decoy decoy))
-                    {
-                        DetectedDecoy(enemyToTarget.magnitude, decoy.gameObject);
-                        return;
-                    }
-                }
+                DetectedDecoy(enemyToTargetLength, decoy.gameObject);
+                return;
             }
         }
-        enemyToTarget = player.transform.position - transform.position;
-        angle = Vector3.Angle(enemyToTarget.normalized, transform.forward) * 2;
+
+        layersToHit = 1 << 8;
+        layersToHit += 1 << 10;
+        layersToHit += 1 << 11;
+        hitGO = CheckFOVForTarget(player.transform.position, layersToHit);
+        enemyToTargetLength = (player.transform.position - transform.position).magnitude;
+        if (hitGO != null && hitGO.TryGetComponent(out Player hitPlayer))
+        {
+            DetectedPlayer(enemyToTargetLength);
+            return;
+        }
+    }
+    GameObject CheckFOVForTarget(Vector3 target, LayerMask layersToHit)
+    {
+        Vector3 enemyToTarget = target - transform.position;
+        float angle = Vector3.Angle(enemyToTarget, transform.forward) * 2;
+        enemyToTarget.Normalize();
+
         if (angle <= fieldOfView.fov)
         {
-            if (Physics.Raycast(transform.position, enemyToTarget.normalized, out RaycastHit hit, fieldOfView.viewDistance, 1 << 8 | 1 << 10 | 1 <<9))
+            if (Physics.Raycast(transform.position, enemyToTarget, out RaycastHit hit, fieldOfView.viewDistance, layersToHit))
             {
-                if (hit.transform.TryGetComponent(out Player player))
-                {
-                    DetectedPlayer(enemyToTarget.magnitude);
-                }
-                else
-                {
-                    Game.game.player.RemoveDetectedEnemy(this);
-                }
+                return hit.transform.gameObject;
             }
         }
+        return null;
     }
     void DetectedPlayer(float distanceToPlayer)
     {
         if (Game.game.player.isInvisible)
             return;
 
-        // Game.game.player.AddDetectedEnemy(this);
         if (distanceToPlayer > killDistance)
         {
             SetChaseState(player.transform.position);
@@ -212,10 +220,7 @@ public class Enemy : MonoBehaviour
         lastSeenPlayerTimer = 0;
         lastSeenPlayerPos = targetPos;
     }
-    void ResetFOVDistance()
-    {
-        fieldOfView.viewDistance *= detectedDecoyRangeDivider;
-    }
+
     void SetReturnState()
     {
 
@@ -237,14 +242,14 @@ public class Enemy : MonoBehaviour
         for (int i = 0; i < waypoints.Count - 1; i++)
         {
             Vector3 direction = waypoints[i + 1].transform.position - waypoints[i].transform.position;
-            float length = direction.magnitude;
+            float lengthOfPath = direction.magnitude;
             direction.Normalize();
-            Vector3 v = transform.position - waypoints[i].transform.position;
-            float d = Mathf.Clamp(Vector3.Dot(v, direction), 0, length);
-            Vector3 point = waypoints[i].transform.position + direction * d;
-            if (d < closestDistance)
+            Vector3 waypointToEnemy = transform.position - waypoints[i].transform.position;
+            float lengthToPath = Mathf.Clamp(Vector3.Dot(waypointToEnemy, direction), 0, lengthOfPath);
+            Vector3 point = waypoints[i].transform.position + direction * lengthToPath;
+            if (lengthToPath < closestDistance)
             {
-                closestDistance = d;
+                closestDistance = lengthToPath;
                 closestPoint = point;
             }
         }
